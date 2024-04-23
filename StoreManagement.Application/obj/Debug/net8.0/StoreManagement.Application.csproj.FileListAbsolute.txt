@@ -1,0 +1,17 @@
+/home/shehab/projects/english-sky/test/StoreManagement.Application/bin/Debug/net8.0/StoreManagement.Application.deps.json
+/home/shehab/projects/english-sky/test/StoreManagement.Application/bin/Debug/net8.0/StoreManagement.Application.dll
+/home/shehab/projects/english-sky/test/StoreManagement.Application/bin/Debug/net8.0/StoreManagement.Application.pdb
+/home/shehab/projects/english-sky/test/StoreManagement.Application/bin/Debug/net8.0/StoreManagement.Domain.dll
+/home/shehab/projects/english-sky/test/StoreManagement.Application/bin/Debug/net8.0/StoreManagement.Domain.pdb
+/home/shehab/projects/english-sky/test/StoreManagement.Application/obj/Debug/net8.0/StoreManagement.Application.csproj.AssemblyReference.cache
+/home/shehab/projects/english-sky/test/StoreManagement.Application/obj/Debug/net8.0/StoreManagement.Application.GeneratedMSBuildEditorConfig.editorconfig
+/home/shehab/projects/english-sky/test/StoreManagement.Application/obj/Debug/net8.0/StoreManagement.Application.AssemblyInfoInputs.cache
+/home/shehab/projects/english-sky/test/StoreManagement.Application/obj/Debug/net8.0/StoreManagement.Application.AssemblyInfo.cs
+/home/shehab/projects/english-sky/test/StoreManagement.Application/obj/Debug/net8.0/StoreManagement.Application.csproj.CoreCompileInputs.cache
+/home/shehab/projects/english-sky/test/StoreManagement.Application/obj/Debug/net8.0/StoreManagement.Application.csproj.CopyComplete
+/home/shehab/projects/english-sky/test/StoreManagement.Application/obj/Debug/net8.0/StoreManagement.Application.dll
+/home/shehab/projects/english-sky/test/StoreManagement.Application/obj/Debug/net8.0/refint/StoreManagement.Application.dll
+/home/shehab/projects/english-sky/test/StoreManagement.Application/obj/Debug/net8.0/StoreManagement.Application.pdb
+/home/shehab/projects/english-sky/test/StoreManagement.Application/obj/Debug/net8.0/ref/StoreManagement.Application.dll
+/home/shehab/projects/english-sky/test/StoreManagement.Application/bin/Debug/net8.0/StoreManagement.Bases.dll
+/home/shehab/projects/english-sky/test/StoreManagement.Application/bin/Debug/net8.0/StoreManagement.Bases.pdb

@@ -1,0 +1,13 @@
+/home/shehab/projects/StoreManagement/IHomers-Back/StoreManagement.Bases/bin/Debug/net8.0/StoreManagement.Bases.deps.json
+/home/shehab/projects/StoreManagement/IHomers-Back/StoreManagement.Bases/bin/Debug/net8.0/StoreManagement.Bases.dll
+/home/shehab/projects/StoreManagement/IHomers-Back/StoreManagement.Bases/bin/Debug/net8.0/StoreManagement.Bases.pdb
+/home/shehab/projects/StoreManagement/IHomers-Back/StoreManagement.Bases/obj/Debug/net8.0/StoreManagement.Bases.csproj.AssemblyReference.cache
+/home/shehab/projects/StoreManagement/IHomers-Back/StoreManagement.Bases/obj/Debug/net8.0/StoreManagement.Bases.GeneratedMSBuildEditorConfig.editorconfig
+/home/shehab/projects/StoreManagement/IHomers-Back/StoreManagement.Bases/obj/Debug/net8.0/StoreManagement.Bases.AssemblyInfoInputs.cache
+/home/shehab/projects/StoreManagement/IHomers-Back/StoreManagement.Bases/obj/Debug/net8.0/StoreManagement.Bases.AssemblyInfo.cs
+/home/shehab/projects/StoreManagement/IHomers-Back/StoreManagement.Bases/obj/Debug/net8.0/StoreManagement.Bases.csproj.CoreCompileInputs.cache
+/home/shehab/projects/StoreManagement/IHomers-Back/StoreManagement.Bases/obj/Debug/net8.0/StoreManagement.Bases.dll
+/home/shehab/projects/StoreManagement/IHomers-Back/StoreManagement.Bases/obj/Debug/net8.0/refint/StoreManagement.Bases.dll
+/home/shehab/projects/StoreManagement/IHomers-Back/StoreManagement.Bases/obj/Debug/net8.0/StoreManagement.Bases.pdb
+/home/shehab/projects/StoreManagement/IHomers-Back/StoreManagement.Bases/obj/Debug/net8.0/ref/StoreManagement.Bases.dll
+/home/shehab/projects/StoreManagement/IHomers-Back/StoreManagement.Bases/obj/Debug/net8.0/EFCoreSqlServerNetTopologySuite.cs

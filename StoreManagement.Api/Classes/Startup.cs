@@ -1,0 +1,43 @@
+using StoreManagement.Api;
+using StoreManagement.Application.Interfaces;
+using StoreManagement.Infrastructure;
+
+namespace StoreManagement.API;
+
+
+public static class StartupBuilder
+{
+    public static void ConfigureServiceTypes(IServiceCollection services)
+    {
+
+
+    }
+
+    public static void ConfigureRepositoriesTypes(IServiceCollection services)
+    {
+        #region Generic
+        services.AddScoped(typeof(UnitOfWork<>), typeof(UnitOfWork<>));
+        services.AddScoped<IUnitOfWork, UnitOfWork<StoreDbContext>>();
+        services.AddScoped<IUnitOfWork<StoreDbContext>, UnitOfWork<StoreDbContext>>();
+        #endregion
+
+
+    }
+    public static void ConfigurePackages(IServiceCollection services)
+    {
+        services.AddHttpContextAccessor();
+        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+        services.AddSignalR(options =>
+        {
+            options.EnableDetailedErrors = true;
+        });
+    }
+    public static  IHostBuilder CreateHostBuilder(string[] args) =>
+    Host.CreateDefaultBuilder(args)
+        .ConfigureWebHostDefaults(webBuilder =>
+        {
+            webBuilder.UseStartup<Startup>()
+            .ConfigureLogging(loggingBuilder => loggingBuilder.ClearProviders());
+        });
+}
+

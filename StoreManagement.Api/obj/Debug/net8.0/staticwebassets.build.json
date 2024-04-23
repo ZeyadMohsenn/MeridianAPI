@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "AMiJO85xPiHD3RUahs90Nmaqq1zgyEMI0xl7/jkwuzQ=",
+  "Source": "StoreManagement.Api",
+  "BasePath": "_content/StoreManagement.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

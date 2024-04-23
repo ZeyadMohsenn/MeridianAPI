@@ -1,0 +1,330 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/shehab/projects/english-sky/store-management/StoreManagement.Infrastructure/StoreManagement.Infrastructure.csproj": {}
+  },
+  "projects": {
+    "/home/shehab/projects/english-sky/store-management/StoreManagement.Application/StoreManagement.Application.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/shehab/projects/english-sky/store-management/StoreManagement.Application/StoreManagement.Application.csproj",
+        "projectName": "StoreManagement.Application",
+        "projectPath": "/home/shehab/projects/english-sky/store-management/StoreManagement.Application/StoreManagement.Application.csproj",
+        "packagesPath": "/home/shehab/.nuget/packages/",
+        "outputPath": "/home/shehab/projects/english-sky/store-management/StoreManagement.Application/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/shehab/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "/home/shehab/projects/english-sky/store-management/StoreManagement.Bases/StoreManagement.Bases.csproj": {
+                "projectPath": "/home/shehab/projects/english-sky/store-management/StoreManagement.Bases/StoreManagement.Bases.csproj"
+              },
+              "/home/shehab/projects/english-sky/store-management/StoreManagement.Domain/StoreManagement.Domain.csproj": {
+                "projectPath": "/home/shehab/projects/english-sky/store-management/StoreManagement.Domain/StoreManagement.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/home/shehab/.dotnet/sdk/8.0.100/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/shehab/projects/english-sky/store-management/StoreManagement.Bases/StoreManagement.Bases.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/shehab/projects/english-sky/store-management/StoreManagement.Bases/StoreManagement.Bases.csproj",
+        "projectName": "StoreManagement.Bases",
+        "projectPath": "/home/shehab/projects/english-sky/store-management/StoreManagement.Bases/StoreManagement.Bases.csproj",
+        "packagesPath": "/home/shehab/.nuget/packages/",
+        "outputPath": "/home/shehab/projects/english-sky/store-management/StoreManagement.Bases/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/shehab/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "AutoMapper": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "AutoMapper.Extensions.Microsoft.DependencyInjection": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.AspNetCore.Mvc.Core": {
+              "target": "Package",
+              "version": "[2.2.5, )"
+            },
+            "Microsoft.AspNetCore.Mvc.NewtonsoftJson": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Analyzers": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Proxies": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Configuration": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Configuration.FileExtensions": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Configuration.Json": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Identity.Web": {
+              "target": "Package",
+              "version": "[2.16.0, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[7.0.3, )"
+            },
+            "System.Text.Json": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/home/shehab/.dotnet/sdk/8.0.100/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/shehab/projects/english-sky/store-management/StoreManagement.Domain/StoreManagement.Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/shehab/projects/english-sky/store-management/StoreManagement.Domain/StoreManagement.Domain.csproj",
+        "projectName": "StoreManagement.Domain",
+        "projectPath": "/home/shehab/projects/english-sky/store-management/StoreManagement.Domain/StoreManagement.Domain.csproj",
+        "packagesPath": "/home/shehab/.nuget/packages/",
+        "outputPath": "/home/shehab/projects/english-sky/store-management/StoreManagement.Domain/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/shehab/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "/home/shehab/projects/english-sky/store-management/StoreManagement.Bases/StoreManagement.Bases.csproj": {
+                "projectPath": "/home/shehab/projects/english-sky/store-management/StoreManagement.Bases/StoreManagement.Bases.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/home/shehab/.dotnet/sdk/8.0.100/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/shehab/projects/english-sky/store-management/StoreManagement.Infrastructure/StoreManagement.Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/shehab/projects/english-sky/store-management/StoreManagement.Infrastructure/StoreManagement.Infrastructure.csproj",
+        "projectName": "StoreManagement.Infrastructure",
+        "projectPath": "/home/shehab/projects/english-sky/store-management/StoreManagement.Infrastructure/StoreManagement.Infrastructure.csproj",
+        "packagesPath": "/home/shehab/.nuget/packages/",
+        "outputPath": "/home/shehab/projects/english-sky/store-management/StoreManagement.Infrastructure/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/shehab/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "/home/shehab/projects/english-sky/store-management/StoreManagement.Application/StoreManagement.Application.csproj": {
+                "projectPath": "/home/shehab/projects/english-sky/store-management/StoreManagement.Application/StoreManagement.Application.csproj"
+              },
+              "/home/shehab/projects/english-sky/store-management/StoreManagement.Bases/StoreManagement.Bases.csproj": {
+                "projectPath": "/home/shehab/projects/english-sky/store-management/StoreManagement.Bases/StoreManagement.Bases.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Magick.NET-Q16-AnyCPU": {
+              "target": "Package",
+              "version": "[13.5.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/home/shehab/.dotnet/sdk/8.0.100/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

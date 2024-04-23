@@ -1,0 +1,15 @@
+/home/shehab/projects/english-sky/test/StoreManagement.Domain/bin/Debug/net8.0/StoreManagement.Domain.deps.json
+/home/shehab/projects/english-sky/test/StoreManagement.Domain/bin/Debug/net8.0/StoreManagement.Domain.dll
+/home/shehab/projects/english-sky/test/StoreManagement.Domain/bin/Debug/net8.0/StoreManagement.Domain.pdb
+/home/shehab/projects/english-sky/test/StoreManagement.Domain/obj/Debug/net8.0/StoreManagement.Domain.GeneratedMSBuildEditorConfig.editorconfig
+/home/shehab/projects/english-sky/test/StoreManagement.Domain/obj/Debug/net8.0/StoreManagement.Domain.AssemblyInfoInputs.cache
+/home/shehab/projects/english-sky/test/StoreManagement.Domain/obj/Debug/net8.0/StoreManagement.Domain.AssemblyInfo.cs
+/home/shehab/projects/english-sky/test/StoreManagement.Domain/obj/Debug/net8.0/StoreManagement.Domain.csproj.CoreCompileInputs.cache
+/home/shehab/projects/english-sky/test/StoreManagement.Domain/obj/Debug/net8.0/StoreManagement.Domain.dll
+/home/shehab/projects/english-sky/test/StoreManagement.Domain/obj/Debug/net8.0/refint/StoreManagement.Domain.dll
+/home/shehab/projects/english-sky/test/StoreManagement.Domain/obj/Debug/net8.0/StoreManagement.Domain.pdb
+/home/shehab/projects/english-sky/test/StoreManagement.Domain/obj/Debug/net8.0/ref/StoreManagement.Domain.dll
+/home/shehab/projects/english-sky/test/StoreManagement.Domain/bin/Debug/net8.0/StoreManagement.Bases.dll
+/home/shehab/projects/english-sky/test/StoreManagement.Domain/bin/Debug/net8.0/StoreManagement.Bases.pdb
+/home/shehab/projects/english-sky/test/StoreManagement.Domain/obj/Debug/net8.0/StoreManagement.Domain.csproj.AssemblyReference.cache
+/home/shehab/projects/english-sky/test/StoreManagement.Domain/obj/Debug/net8.0/StoreManagement.Domain.csproj.CopyComplete
