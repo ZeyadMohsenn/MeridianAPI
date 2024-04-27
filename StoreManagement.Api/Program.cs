@@ -1,6 +1,8 @@
 using Microsoft.OpenApi.Models;
 using StoreManagement.Api;
 using StoreManagement.API.Classes;
+using StoreManagement.Application.Interfaces;
+using StoreManagement.Application.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 Startup startup = new(builder.Configuration);

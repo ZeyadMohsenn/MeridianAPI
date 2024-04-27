@@ -1,5 +1,6 @@
 using StoreManagement.Api;
 using StoreManagement.Application.Interfaces;
+using StoreManagement.Application.Services;
 using StoreManagement.Infrastructure;
 
 namespace StoreManagement.API;
@@ -9,6 +10,7 @@ public static class StartupBuilder
 {
     public static void ConfigureServiceTypes(IServiceCollection services)
     {
+        services.AddScoped<ICategoryService, CategoryService>();
 
 
     }

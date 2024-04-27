@@ -50,6 +50,8 @@ public class StoreDbContext : IdentityDbContext<ApplicationUser, ApplicationRole
     #region Tables
     //  public virtual DbSet<Chat> Chats { get; set; }
 
+    public virtual DbSet<Category> Category { get; set; }
+
     #endregion
 
     #region AuditSaveChanges
