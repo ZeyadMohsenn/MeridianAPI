@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using StoreManagement.Application.Interfaces;
 using StoreManagement.Bases;
+using StoreManagement.Bases.Domain;
 using StoreManagement.Domain.Dtos;
 using StoreManagement.Domain.Entities;
 
@@ -25,32 +25,69 @@ namespace StoreManagement.Api.Controllers
             var category = await _categoryServices.AddCategory(addCategoryDto);
             return Ok(category);
         }
-        [HttpGet, AllowAnonymous]
-        public async
 
-        [HttpGet, AllowAnonymous]
-        public async Task<IActionResult> GetCategories()
+        [HttpGet("{id}"), AllowAnonymous]
+        public async Task<IActionResult> GetCategory(Guid id)
         {
-            List<Category> categories = await _categoryServices.GetCategoriesAsync();
-            return Ok(categories);
+            ServiceResponse<Category> category = await _categoryServices.GetCategory(id);
+            if (category != null)
+            {
+                return Ok(category.Data);
+            }
+            else
+            {
+                return NotFound(new { message = "Category not found" });
+            }
         }
+
+
+        [HttpGet("GetAll"), AllowAnonymous]
+        public async Task<IActionResult> GetCategories([FromQuery] PagingModel pagingModel)
+        {
+            ServiceResponse<List<Category>> categories = await _categoryServices.GetCategoriesAsync(pagingModel);
+            if (categories != null)
+            {
+                return Ok(categories.Data);
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
+
+        [HttpPut, AllowAnonymous]
+        public async Task<IActionResult> UpdateCategory(UpdateCategoryDto categoryDto, Guid id)
+        {
+
+
+            var updatedCategory = await _categoryServices.UpdateCategory(categoryDto, id);
+
+            if (updatedCategory == null)
+            {
+                return NotFound("Category not found.");
+            }
+
+            return Ok(updatedCategory);
+        }
+
 
 
         [HttpDelete, AllowAnonymous]
         public async Task<IActionResult> DeleteCategory(Guid id)
         {
-            
-            var isDeleted = await _categoryServices.DeleteCategoryAsync(id);
+            ServiceResponse<bool> deleteResponse = await _categoryServices.DeleteCategoryAsync(id);
 
-            if (isDeleted)
+            if (deleteResponse.Success)
             {
                 return Ok(new { message = "Category deleted successfully" });
             }
             else
             {
-                return BadRequest(new { message = "Failed to delete category" });
+                return BadRequest(new { message = deleteResponse.Message });
             }
         }
+
 
 
     }

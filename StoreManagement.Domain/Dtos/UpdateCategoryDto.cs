@@ -1,6 +1,6 @@
 ﻿namespace StoreManagement.Domain.Dtos;
 
-public class AddCategoryDto
+public class UpdateCategoryDto
 {
     public required string Name { get; set; } = string.Empty;
     public string? Description { get; set; }

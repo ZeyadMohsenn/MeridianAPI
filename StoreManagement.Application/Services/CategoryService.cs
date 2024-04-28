@@ -1,80 +1,173 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using StoreManagement.Application.Interfaces;
 using StoreManagement.Bases;
+using StoreManagement.Bases.Domain;
 using StoreManagement.Domain.Dtos;
 using StoreManagement.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace StoreManagement.Application.Services
+namespace StoreManagement.Application.Services;
+
+public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBase(), ICategoryService
 {
-    public class CategoryService : ICategoryService
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IMapper _mapper = mapper;
+    private readonly IBaseRepository<Category> _categoryRepo = unitOfWork.GetRepository<Category>();
+
+    public async Task<ServiceResponse<bool>> AddCategory(AddCategoryDto addCategoryDto)
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-        private readonly IBaseRepository<Category> _categoryRepo;
-
-        public CategoryService(IUnitOfWork unitOfWork, IMapper mapper) :base()
+        try
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
-            _categoryRepo = unitOfWork.GetRepository<Category>();
+            if (string.IsNullOrWhiteSpace(addCategoryDto.Name))
+                return new ServiceResponse<bool>() { Success = false, Message = "Empty Name" };
+            addCategoryDto.Name = addCategoryDto.Name.Trim();
 
+            var temp = await _categoryRepo.FindAsync(c => c.Name == addCategoryDto.Name);
+            if (temp != null)
+            {
+                return new ServiceResponse<bool>() { Success = false, Message = $"{addCategoryDto.Name} already exisitng" };
+            }
+
+            addCategoryDto.Description = addCategoryDto.Description.Trim();
+
+
+            Category dbCategory = new()
+            {
+                Name = addCategoryDto.Name,
+                Description = addCategoryDto.Description
+            };
+
+            await _categoryRepo.AddAsync(dbCategory);
+            await _unitOfWork.CommitAsync();
+
+            return new ServiceResponse<bool>()
+            {
+                Success = true,
+                Message = "Data Created Successfully"
+            };
         }
-
-        public async Task<bool> AddCategory(AddCategoryDto addCategoryDto)
+        catch (Exception ex)
         {
-           
-                Category dbCategory = new Category()
-                {
-                    Name = addCategoryDto.Name,
-                    Description = addCategoryDto.Description
-                };
-
-                await _categoryRepo.AddAsync(dbCategory);
-                await _unitOfWork.CommitAsync();
-
-                return true; 
+            return await LogError(ex, false);
         }
+    }
 
 
-     
-        public Category GetCategory(Guid id)
+
+
+    public async Task<ServiceResponse<Category>> GetCategory(Guid id)
+    {
+        try
         {
             Category category = _categoryRepo.FindByID(id);
-            return category;
+            return new ServiceResponse<Category>() { Data = category, Success = true, Message = "Retrieved Successfully" };
         }
-
-        public async Task<List<Category>> GetCategoriesAsync()
+        catch (Exception)
         {
-            List<Category> categories = await _categoryRepo.GetAllAsync(a => true);
-            return categories;
-        }
-
-
-
-        public Category UpdateCategory(Category category, Guid id)
-        {
-            throw new NotImplementedException();
-        }
-        public async Task<bool> DeleteCategoryAsync(Guid id)
-        {
-            Category category = _categoryRepo.FindByID(id);
-            try
-            {
-                _categoryRepo.Remove(category);
-                var affectedRows = await _unitOfWork.CommitAsync();
-
-                return affectedRows > 0;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+            throw;
         }
 
     }
+
+    public async Task<ServiceResponse<List<Category>>> GetCategoriesAsync(PagingModel pagingModel)
+    {
+        try
+        {
+            var query = await _categoryRepo.GetAllQueryableAsync(filterPredicate: a => true);
+
+            if (!await query.AnyAsync())
+                return new ServiceResponse<List<Category>> { Success = true, Message = "Categories not found" };
+
+            var count = await query.CountAsync();
+
+            var categories = await query.Skip((pagingModel.PageNumber - 1) * pagingModel.PageSize)
+                                        .Take(pagingModel.PageSize)
+                                        .ToListAsync();
+
+            return new ServiceResponse<List<Category>>
+            {
+                Data = categories,
+                Message = "Categories retrieved successfully",
+                Success = true
+            };
+        }
+        catch (Exception ex)
+        {
+
+
+            return new ServiceResponse<List<Category>> { Data = null, Success = false, Message = "An error occurred while retrieving categories" };
+        }
+
+    }
+
+    public async Task<ServiceResponse<bool>> UpdateCategory(UpdateCategoryDto categoryDto, Guid id)
+    {
+        try
+        {
+            categoryDto.Name = categoryDto.Name.Trim();
+            var temp = await _categoryRepo.FindAsync(c => c.Name == categoryDto.Name);
+            if (temp != null)
+            {
+                return new ServiceResponse<bool>() { Success = false, Message = $"{categoryDto.Name} already exisitng" };
+            }
+            categoryDto.Description = categoryDto.Description.Trim();
+
+            Category dbCategory = _categoryRepo.FindByID(id);
+
+            if (dbCategory != null)
+            {
+                dbCategory.Name = categoryDto.Name;
+                dbCategory.Description = categoryDto.Description;
+                _categoryRepo.Update(dbCategory);
+                await _unitOfWork.CommitAsync();
+
+                return new ServiceResponse<bool>()
+                {
+                    Success = true,
+                    Message = "Category Updated Successfully"
+                };
+            }
+            else
+            {
+                return new ServiceResponse<bool>()
+                {
+                    Success = false,
+                    Message = "Category not found"
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            return await LogError(ex, false);
+        }
+    }
+
+
+
+    public async Task<ServiceResponse<bool>> DeleteCategoryAsync(Guid id)
+    {
+        try
+        {
+            Category category = _categoryRepo.FindByID(id);
+            if (category == null)
+            {
+                return new ServiceResponse<bool> { Success = false, Message = "Category not found" };
+            }
+
+            _categoryRepo.Remove(category);
+            var affectedRows = await _unitOfWork.CommitAsync();
+
+            return new ServiceResponse<bool> { Success = affectedRows > 0, Message = "Category deleted successfully" };
+        }
+        catch (Exception ex)
+        {
+
+
+            return new ServiceResponse<bool> { Success = false, Message = "An error occurred while deleting the category" };
+        }
+    }
+
+
+
+
 }

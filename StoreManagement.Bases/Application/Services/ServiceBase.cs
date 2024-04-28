@@ -14,7 +14,7 @@ public abstract class ServiceBase
     // public Guid UserId => Guid.Parse(_httpContext?.HttpContext.User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? Guid.Empty.ToString());
     //public Guid UserId => UserState.GetCurrentUserId();
     public Guid UserId { get { return UserState.UserId; } }
-    protected async Task<ServiceResponse<T>> LogError<T>(Exception ex, T data, object inputs)
+    protected async Task<ServiceResponse<T>> LogError<T>(Exception ex, T data, object inputs = default)
     {
         if (!Directory.Exists(Path.Combine(Directory.GetCurrentDirectory(), DateTime.Now.ToString(@"yyyy\\MM"))))
             Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), DateTime.Now.ToString(@"yyyy\\MM")));

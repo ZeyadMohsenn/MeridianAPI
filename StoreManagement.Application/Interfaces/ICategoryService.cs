@@ -1,20 +1,16 @@
-﻿using StoreManagement.Domain.Dtos;
+﻿using StoreManagement.Bases;
+using StoreManagement.Bases.Domain;
+using StoreManagement.Domain.Dtos;
 using StoreManagement.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace StoreManagement.Application.Interfaces
+namespace StoreManagement.Application.Interfaces;
+
+public interface ICategoryService
 {
-    public interface ICategoryService
-    {
-         Task<bool> AddCategory(AddCategoryDto addCategoryDto);
-        Category GetCategory(Guid id);
-        Task<List<Category>> GetCategoriesAsync();
-        Category UpdateCategory(Category category, Guid id);
+    Task<ServiceResponse<bool>> AddCategory(AddCategoryDto addCategoryDto);
+    Task<ServiceResponse<Category>> GetCategory(Guid id);
+    Task<ServiceResponse<List<Category>>> GetCategoriesAsync(PagingModel pagingModel);
+    Task<ServiceResponse<bool>> UpdateCategory(UpdateCategoryDto categoryDto, Guid id);
 
-        Task<bool> DeleteCategoryAsync(Guid id);
-    }
+    Task<ServiceResponse<bool>> DeleteCategoryAsync(Guid id);
 }
