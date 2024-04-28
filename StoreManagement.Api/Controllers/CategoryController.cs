@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using StoreManagement.Application.Interfaces;
 using StoreManagement.Bases;
 using StoreManagement.Bases.Domain;
+using StoreManagement.Domain;
 using StoreManagement.Domain.Dtos;
 using StoreManagement.Domain.Entities;
 
@@ -30,28 +31,22 @@ namespace StoreManagement.Api.Controllers
         public async Task<IActionResult> GetCategory(Guid id)
         {
             ServiceResponse<Category> category = await _categoryServices.GetCategory(id);
-            if (category != null)
-            {
-                return Ok(category.Data);
-            }
-            else
-            {
-                return NotFound(new { message = "Category not found" });
-            }
+            return Ok(category);
         }
 
 
         [HttpGet("GetAll"), AllowAnonymous]
         public async Task<IActionResult> GetCategories([FromQuery] PagingModel pagingModel)
         {
-            ServiceResponse<List<Category>> categories = await _categoryServices.GetCategoriesAsync(pagingModel);
-            if (categories != null)
+            ServiceResponse<PaginationResponse<Category>> response = await _categoryServices.GetCategoriesAsync(pagingModel);
+
+            if (response.Success)
             {
-                return Ok(categories.Data);
+                return Ok(response); 
             }
             else
             {
-                return BadRequest();
+                return BadRequest(response); 
             }
         }
 
@@ -59,6 +54,7 @@ namespace StoreManagement.Api.Controllers
         [HttpPut, AllowAnonymous]
         public async Task<IActionResult> UpdateCategory(UpdateCategoryDto categoryDto, Guid id)
         {
+            
 
 
             var updatedCategory = await _categoryServices.UpdateCategory(categoryDto, id);

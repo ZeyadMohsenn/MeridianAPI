@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using StoreManagement.Application.Interfaces;
 using StoreManagement.Bases;
 using StoreManagement.Bases.Domain;
+using StoreManagement.Domain;
 using StoreManagement.Domain.Dtos;
 using StoreManagement.Domain.Entities;
 
@@ -27,7 +28,10 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
             {
                 return new ServiceResponse<bool>() { Success = false, Message = $"{addCategoryDto.Name} already exisitng" };
             }
-
+            if (addCategoryDto.Description == null)
+            {
+                addCategoryDto.Description = string.Empty;
+            }
             addCategoryDto.Description = addCategoryDto.Description.Trim();
 
 
@@ -60,23 +64,30 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
         try
         {
             Category category = _categoryRepo.FindByID(id);
-            return new ServiceResponse<Category>() { Data = category, Success = true, Message = "Retrieved Successfully" };
+            if (category != null)
+            {
+                return new ServiceResponse<Category>() { Data = category, Success = true, Message = "Retrieved Successfully" };
+            }
+            else
+            {
+                return new ServiceResponse<Category>() { Success = false, Message = "Category not found" };
+            }
         }
         catch (Exception)
         {
-            throw;
+            return new ServiceResponse<Category>() {Data = null, Success = false, Message = "An error occurred while getting category" };
         }
 
     }
 
-    public async Task<ServiceResponse<List<Category>>> GetCategoriesAsync(PagingModel pagingModel)
+    public async Task<ServiceResponse<PaginationResponse<Category>>> GetCategoriesAsync(PagingModel pagingModel)
     {
         try
         {
             var query = await _categoryRepo.GetAllQueryableAsync(filterPredicate: a => true);
 
-            if (!await query.AnyAsync())
-                return new ServiceResponse<List<Category>> { Success = true, Message = "Categories not found" };
+            if (!query.Any())
+                return new ServiceResponse<PaginationResponse<Category>> { Success = true, Message = "Categories not found" };
 
             var count = await query.CountAsync();
 
@@ -84,24 +95,32 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
                                         .Take(pagingModel.PageSize)
                                         .ToListAsync();
 
-            return new ServiceResponse<List<Category>>
+            var paginationResponse = new PaginationResponse<Category>
             {
-                Data = categories,
+                Length = count,
+                Collection = categories
+            };
+
+            return new ServiceResponse<PaginationResponse<Category>>
+            {
+                Data = paginationResponse,
                 Message = "Categories retrieved successfully",
                 Success = true
             };
         }
         catch (Exception ex)
         {
-
-
-            return new ServiceResponse<List<Category>> { Data = null, Success = false, Message = "An error occurred while retrieving categories" };
+            return new ServiceResponse<PaginationResponse<Category>> { Data = null, Success = false, Message = "An error occurred while retrieving categories: " + ex.Message };
         }
-
     }
 
     public async Task<ServiceResponse<bool>> UpdateCategory(UpdateCategoryDto categoryDto, Guid id)
     {
+        if (id == Guid.Empty)
+        {
+            return new ServiceResponse<bool>() { Success = false, Message = "Please Enter the id" };
+
+        }
         try
         {
             categoryDto.Name = categoryDto.Name.Trim();
@@ -109,6 +128,10 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
             if (temp != null)
             {
                 return new ServiceResponse<bool>() { Success = false, Message = $"{categoryDto.Name} already exisitng" };
+            }
+            if (categoryDto.Description == null)
+            {
+                categoryDto.Description = string.Empty;
             }
             categoryDto.Description = categoryDto.Description.Trim();
 
@@ -146,6 +169,11 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
 
     public async Task<ServiceResponse<bool>> DeleteCategoryAsync(Guid id)
     {
+        if (id == Guid.Empty)
+        {
+            return new ServiceResponse<bool>() { Success = false, Message = "Please Enter the id" };
+
+        }
         try
         {
             Category category = _categoryRepo.FindByID(id);
