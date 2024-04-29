@@ -1,5 +1,6 @@
 ﻿using StoreManagement.Bases;
 using StoreManagement.Bases.Domain;
+using StoreManagement.Bases.Domain.Model;
 using StoreManagement.Domain;
 using StoreManagement.Domain.Dtos;
 using StoreManagement.Domain.Entities;
@@ -15,7 +16,7 @@ namespace StoreManagement.Application.Interfaces
     {
         Task<ServiceResponse<bool>> AddSubCategory(AddSubCategoryDto addSubCategoryDto);
         Task<ServiceResponse<SubCategory>> GetSubCategory(Guid id);
-        Task<ServiceResponse<PaginationResponse<SubCategory>>> GetSubCategoriesAsync(PagingModel pagingModel);
+        Task<ServiceResponse<PaginationResponse<SubCategory>>> GetSubCategoriesAsync(GetAllSubCategoriesFilter subCategoriesFitler);
         Task<ServiceResponse<bool>> UpdateSubCategory(UpdateSubCategoryDto subCategoryDto, Guid id);
         Task<ServiceResponse<bool>> DeleteSubCategoryAsync(Guid id);
 

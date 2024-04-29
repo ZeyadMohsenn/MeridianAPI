@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using StoreManagement.Application.Interfaces;
 using StoreManagement.Bases;
 using StoreManagement.Bases.Domain;
+using StoreManagement.Bases.Domain.Model;
 using StoreManagement.Domain;
 using StoreManagement.Domain.Dtos;
 using StoreManagement.Domain.Entities;
@@ -86,19 +87,37 @@ namespace StoreManagement.Application.Services
                 return new ServiceResponse<SubCategory>() { Data = null, Success = false, Message = "An error occurred while getting the SubCategory" };
             }
         }
-        public async Task<ServiceResponse<PaginationResponse<SubCategory>>> GetSubCategoriesAsync(PagingModel pagingModel)
+        public async Task<ServiceResponse<PaginationResponse<SubCategory>>> GetSubCategoriesAsync(GetAllSubCategoriesFilter subCategoriesFitler)
         {
             try
             {
-                var query = await _subCategoryRepo.GetAllQueryableAsync(filterPredicate: a => true);
+                //var query = await _subCategoryRepo.GetAllQueryableAsync(filterPredicate: a => true);
+                var query = _subCategoryRepo.GetAllQueryableAsync();
+
+                if (subCategoriesFitler.CategoryId != Guid.Empty)
+                {
+                    query = query.Where(subCategory => subCategory.Category_Id == subCategoriesFitler.CategoryId);
+                }
+
+                if (!string.IsNullOrEmpty(subCategoriesFitler.CategoryName))
+                {
+                    query = query.Where(subCategory => subCategory.Category.Name.Contains(subCategoriesFitler.CategoryName));
+                }
+
+                if (subCategoriesFitler.Is_Deleted)
+                {
+                    query = query.Where(subCategory => subCategory.Is_Deleted == subCategoriesFitler.Is_Deleted);
+                }
+
+        
 
                 if (!query.Any())
                     return new ServiceResponse<PaginationResponse<SubCategory>> { Success = true, Message = "SubCategories not found" };
 
                 var count = await query.CountAsync();
 
-                var subCategories = await query.Skip((pagingModel.PageNumber - 1) * pagingModel.PageSize)
-                                            .Take(pagingModel.PageSize)
+                var subCategories = await query.Skip((subCategoriesFitler.PageNumber - 1) * subCategoriesFitler.PageSize)
+                                            .Take(subCategoriesFitler.PageSize)
                                             .ToListAsync();
 
                 var paginationResponse = new PaginationResponse<SubCategory>

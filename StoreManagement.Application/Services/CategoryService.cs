@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using StoreManagement.Application.Interfaces;
 using StoreManagement.Bases;
 using StoreManagement.Bases.Domain;
+using StoreManagement.Bases.Domain.Model;
 using StoreManagement.Domain;
 using StoreManagement.Domain.Dtos;
 using StoreManagement.Domain.Entities;
@@ -80,19 +81,26 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
 
     }
 
-    public async Task<ServiceResponse<PaginationResponse<Category>>> GetCategoriesAsync(PagingModel pagingModel)
+    public async Task<ServiceResponse<PaginationResponse<Category>>> GetCategoriesAsync(GetAllCategoriesFilter categoriesFitler)
     {
         try
         {
-            var query = await _categoryRepo.GetAllQueryableAsync(filterPredicate: a => true);
+            var query = _categoryRepo.GetAllQueryableAsync();
 
-            if (!query.Any())
-                return new ServiceResponse<PaginationResponse<Category>> { Success = true, Message = "Categories not found" };
+            if (!string.IsNullOrEmpty(categoriesFitler.CategoryName))
+            {
+                query = query.Where(category => category.Name.Contains(categoriesFitler.CategoryName));
+            }
+
+            if (categoriesFitler.Is_Deleted)
+            {
+                query = query.Where(category => category.Is_Deleted == categoriesFitler.Is_Deleted);
+            }
 
             var count = await query.CountAsync();
 
-            var categories = await query.Skip((pagingModel.PageNumber - 1) * pagingModel.PageSize)
-                                        .Take(pagingModel.PageSize)
+            var categories = await query.Skip((categoriesFitler.PageNumber - 1) * categoriesFitler.PageSize)
+                                        .Take(categoriesFitler.PageSize)
                                         .ToListAsync();
 
             var paginationResponse = new PaginationResponse<Category>

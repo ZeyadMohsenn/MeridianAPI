@@ -4,6 +4,7 @@ using StoreManagement.Application.Interfaces;
 using StoreManagement.Application.Services;
 using StoreManagement.Bases;
 using StoreManagement.Bases.Domain;
+using StoreManagement.Bases.Domain.Model;
 using StoreManagement.Domain;
 using StoreManagement.Domain.Dtos;
 using StoreManagement.Domain.Entities;
@@ -35,9 +36,9 @@ namespace StoreManagement.Api.Controllers
             return Ok(subCategory);
         }
         [HttpGet("GetAll"), AllowAnonymous]
-        public async Task<IActionResult> GetSubCategories([FromQuery] PagingModel pagingModel)
+        public async Task<IActionResult> GetSubCategories([FromQuery] GetAllSubCategoriesFilter subCategoriesFitler)
         {
-            ServiceResponse<PaginationResponse<SubCategory>> response = await _subCategoryServices.GetSubCategoriesAsync(pagingModel);
+            ServiceResponse<PaginationResponse<SubCategory>> response = await _subCategoryServices.GetSubCategoriesAsync(subCategoriesFitler);
 
             if (response.Success)
             {

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using StoreManagement.Application.Interfaces;
 using StoreManagement.Bases;
 using StoreManagement.Bases.Domain;
+using StoreManagement.Bases.Domain.Model;
 using StoreManagement.Domain;
 using StoreManagement.Domain.Dtos;
 using StoreManagement.Domain.Entities;
@@ -36,9 +37,9 @@ namespace StoreManagement.Api.Controllers
 
 
         [HttpGet("GetAll"), AllowAnonymous]
-        public async Task<IActionResult> GetCategories([FromQuery] PagingModel pagingModel)
+        public async Task<IActionResult> GetCategories([FromQuery] GetAllCategoriesFilter categoriesFitler)
         {
-            ServiceResponse<PaginationResponse<Category>> response = await _categoryServices.GetCategoriesAsync(pagingModel);
+            ServiceResponse<PaginationResponse<Category>> response = await _categoryServices.GetCategoriesAsync(categoriesFitler);
 
             if (response.Success)
             {
