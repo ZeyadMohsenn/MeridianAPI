@@ -11,6 +11,7 @@ public static class StartupBuilder
     public static void ConfigureServiceTypes(IServiceCollection services)
     {
         services.AddScoped<ICategoryService, CategoryService>();
+        services.AddScoped<ISubCategoryService, SubCategoryService>();
 
 
     }
@@ -34,7 +35,7 @@ public static class StartupBuilder
             options.EnableDetailedErrors = true;
         });
     }
-    public static  IHostBuilder CreateHostBuilder(string[] args) =>
+    public static IHostBuilder CreateHostBuilder(string[] args) =>
     Host.CreateDefaultBuilder(args)
         .ConfigureWebHostDefaults(webBuilder =>
         {

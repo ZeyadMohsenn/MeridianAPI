@@ -51,6 +51,7 @@ public class StoreDbContext : IdentityDbContext<ApplicationUser, ApplicationRole
     //  public virtual DbSet<Chat> Chats { get; set; }
 
     public virtual DbSet<Category> Category { get; set; }
+    public virtual DbSet<SubCategory> SubCategories { get; set; }
 
     #endregion
 

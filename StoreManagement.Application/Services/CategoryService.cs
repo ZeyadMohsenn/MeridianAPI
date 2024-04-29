@@ -137,27 +137,25 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
 
             Category dbCategory = _categoryRepo.FindByID(id);
 
-            if (dbCategory != null)
-            {
-                dbCategory.Name = categoryDto.Name;
-                dbCategory.Description = categoryDto.Description;
-                _categoryRepo.Update(dbCategory);
-                await _unitOfWork.CommitAsync();
-
-                return new ServiceResponse<bool>()
-                {
-                    Success = true,
-                    Message = "Category Updated Successfully"
-                };
-            }
-            else
+            if (dbCategory == null)
             {
                 return new ServiceResponse<bool>()
                 {
                     Success = false,
                     Message = "Category not found"
                 };
+             
             }
+            dbCategory.Name = categoryDto.Name;
+            dbCategory.Description = categoryDto.Description;
+            _categoryRepo.Update(dbCategory);
+            await _unitOfWork.CommitAsync();
+
+            return new ServiceResponse<bool>()
+            {
+                Success = true,
+                Message = "Category Updated Successfully"
+            };
         }
         catch (Exception ex)
         {
