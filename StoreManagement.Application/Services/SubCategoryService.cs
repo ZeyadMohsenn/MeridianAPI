@@ -94,14 +94,14 @@ namespace StoreManagement.Application.Services
                 //var query = await _subCategoryRepo.GetAllQueryableAsync(filterPredicate: a => true);
                 var query = _subCategoryRepo.GetAllQueryableAsync();
 
-                if (subCategoriesFitler.CategoryId != Guid.Empty)
+                if (subCategoriesFitler.SubCategoryId != Guid.Empty)
                 {
-                    query = query.Where(subCategory => subCategory.Category_Id == subCategoriesFitler.CategoryId);
+                    query = query.Where(subCategory => subCategory.Category_Id == subCategoriesFitler.SubCategoryId);
                 }
 
-                if (!string.IsNullOrEmpty(subCategoriesFitler.CategoryName))
+                if (!string.IsNullOrEmpty(subCategoriesFitler.SubCategoryName))
                 {
-                    query = query.Where(subCategory => subCategory.Category.Name.Contains(subCategoriesFitler.CategoryName));
+                    query = query.Where(subCategory => subCategory.Name.Contains(subCategoriesFitler.SubCategoryName));
                 }
 
                 if (subCategoriesFitler.Is_Deleted)
@@ -109,7 +109,8 @@ namespace StoreManagement.Application.Services
                     query = query.Where(subCategory => subCategory.Is_Deleted == subCategoriesFitler.Is_Deleted);
                 }
 
-        
+
+
 
                 if (!query.Any())
                     return new ServiceResponse<PaginationResponse<SubCategory>> { Success = true, Message = "SubCategories not found" };

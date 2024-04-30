@@ -39,7 +39,7 @@ namespace StoreManagement.Api.Controllers
         [HttpGet("GetAll"), AllowAnonymous]
         public async Task<IActionResult> GetCategories([FromQuery] GetAllCategoriesFilter categoriesFitler)
         {
-            ServiceResponse<PaginationResponse<Category>> response = await _categoryServices.GetCategoriesAsync(categoriesFitler);
+            ServiceResponse<PaginationResponse<GetAllCategoriesDto>> response = await _categoryServices.GetCategoriesAsync(categoriesFitler);
 
             if (response.Success)
             {
@@ -48,6 +48,19 @@ namespace StoreManagement.Api.Controllers
             else
             {
                 return BadRequest(response); 
+            }
+        }
+        [HttpGet("GetAllDropDown"), AllowAnonymous]
+        public async Task<IActionResult> GetCategoriesDropDownList()
+        {
+            ServiceResponse<List<DropDownCategoriesDto>> categories = await _categoryServices.GetCategoriesDropDownList();
+            if (categories.Success)
+            {
+                return Ok(categories);
+            }
+            else
+            {
+                return NotFound();
             }
         }
 

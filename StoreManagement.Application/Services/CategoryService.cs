@@ -81,7 +81,7 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
 
     }
 
-    public async Task<ServiceResponse<PaginationResponse<Category>>> GetCategoriesAsync(GetAllCategoriesFilter categoriesFitler)
+    public async Task<ServiceResponse<PaginationResponse<GetAllCategoriesDto>>> GetCategoriesAsync(GetAllCategoriesFilter categoriesFitler)
     {
         try
         {
@@ -102,14 +102,23 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
             var categories = await query.Skip((categoriesFitler.PageNumber - 1) * categoriesFitler.PageSize)
                                         .Take(categoriesFitler.PageSize)
                                         .ToListAsync();
+            var categoriesDtoList = categories.Select(category => new GetAllCategoriesDto
+            {
+                Name = category.Name,
+                Description = category.Description,
+                Photo = category.Photo,
+                Id = category.Id,
+                IsDeleted = category.Is_Deleted,
+                
+            }).ToList();
 
-            var paginationResponse = new PaginationResponse<Category>
+            var paginationResponse = new PaginationResponse<GetAllCategoriesDto>
             {
                 Length = count,
-                Collection = categories
+                Collection = categoriesDtoList
             };
 
-            return new ServiceResponse<PaginationResponse<Category>>
+            return new ServiceResponse<PaginationResponse<GetAllCategoriesDto>>
             {
                 Data = paginationResponse,
                 Message = "Categories retrieved successfully",
@@ -118,7 +127,7 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
         }
         catch (Exception ex)
         {
-            return new ServiceResponse<PaginationResponse<Category>> { Data = null, Success = false, Message = "An error occurred while retrieving categories: " + ex.Message };
+            return new ServiceResponse<PaginationResponse<GetAllCategoriesDto>> { Data = null, Success = false, Message = "An error occurred while retrieving categories: " + ex.Message };
         }
     }
 
@@ -201,7 +210,35 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
         }
     }
 
+    public async Task<ServiceResponse<List<DropDownCategoriesDto>>> GetCategoriesDropDownList()
+    {
+        try
+        {
+            var categories = await _categoryRepo.GetAllAsync(filterPredicate: a => true);
 
+            var categoriesDtoList = categories.Select(category => new DropDownCategoriesDto
+            {
+                Name = category.Name,
+                Id = category.Id,
 
+            }).ToList();
+
+            return new ServiceResponse<List<DropDownCategoriesDto>>
+            {
+                Data = categoriesDtoList,
+                Message = "Categories retrieved successfully",
+                Success = true
+            };
+        }
+        catch (Exception ex)
+        {
+            return new ServiceResponse<List<DropDownCategoriesDto>>
+            {
+                Data = null,
+                Success = false,
+                Message = "An error occurred while retrieving categories " 
+            };
+        }
+    }
 
 }

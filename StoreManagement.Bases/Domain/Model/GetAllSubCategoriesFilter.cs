@@ -8,8 +8,8 @@ namespace StoreManagement.Bases.Domain.Model
 {
     public class GetAllSubCategoriesFilter : PagingModel
     {
-        public Guid CategoryId { get; set; }
-        public string CategoryName { get; set; }    
+        public Guid SubCategoryId { get; set; }
+        public string SubCategoryName { get; set; }    
         public bool Is_Deleted { get; set; }
     }
 }

@@ -11,8 +11,9 @@ public interface ICategoryService
 {
     Task<ServiceResponse<bool>> AddCategory(AddCategoryDto addCategoryDto);
     Task<ServiceResponse<Category>> GetCategory(Guid id);
-    Task<ServiceResponse<PaginationResponse<Category>>> GetCategoriesAsync(GetAllCategoriesFilter categoryFilter);
+    Task<ServiceResponse<PaginationResponse<GetAllCategoriesDto>>> GetCategoriesAsync(GetAllCategoriesFilter categoryFilter);
     Task<ServiceResponse<bool>> UpdateCategory(UpdateCategoryDto categoryDto, Guid id);
 
     Task<ServiceResponse<bool>> DeleteCategoryAsync(Guid id);
+    Task<ServiceResponse<List<DropDownCategoriesDto>>> GetCategoriesDropDownList();
 }
