@@ -73,70 +73,100 @@ namespace StoreManagement.Application.Services
         }
 
  
-        public async Task<ServiceResponse<SubCategory>> GetSubCategory(Guid id)
+        public async Task<ServiceResponse<GetSubCategoryDto>> GetSubCategory(Guid id)
         {
             try
             {
-                SubCategory subCategory = _subCategoryRepo.FindByID(id);
-                if (subCategory == null)
-                    return new ServiceResponse<SubCategory>() { Success = false, Message = "Category not found" };
-                return new ServiceResponse<SubCategory>() { Data = subCategory, Success = true, Message = "Retrieved Successfully" };
+                SubCategory subcategory =  _subCategoryRepo.FindByID(id);
+                if (subcategory != null)
+                {
+                    GetSubCategoryDto subcategoryDto = new GetSubCategoryDto
+                    {
+                        Name = subcategory.Name,
+                        Description = subcategory.Description,
+                        Photo = subcategory.Photo,
+                        Id = subcategory.Id,
+                        IsDeleted = subcategory.Is_Deleted
+                    };
+
+                    return new ServiceResponse<GetSubCategoryDto>()
+                    {
+                        Data = subcategoryDto,
+                        Success = true,
+                        Message = "Retrieved Successfully"
+                    };
+                }
+                else
+                {
+                    return new ServiceResponse<GetSubCategoryDto>() { Success = false, Message = "SubCategory not found" };
+                }
             }
             catch (Exception)
             {
-                return new ServiceResponse<SubCategory>() { Data = null, Success = false, Message = "An error occurred while getting the SubCategory" };
+                return new ServiceResponse<GetSubCategoryDto>() { Data = null, Success = false, Message = "An error occurred while getting Subcategory" };
             }
         }
-        public async Task<ServiceResponse<PaginationResponse<SubCategory>>> GetSubCategoriesAsync(GetAllSubCategoriesFilter subCategoriesFitler)
+        public async Task<ServiceResponse<PaginationResponse<GetAllSubCategoriesDto>>> GetSubCategoriesAsync(GetAllSubCategoriesFilter subCategoriesFilter)
         {
             try
             {
                 //var query = await _subCategoryRepo.GetAllQueryableAsync(filterPredicate: a => true);
                 var query = _subCategoryRepo.GetAllQueryableAsync();
 
-                if (subCategoriesFitler.SubCategoryId != Guid.Empty)
+                if (subCategoriesFilter.SubCategoryId != Guid.Empty)
                 {
-                    query = query.Where(subCategory => subCategory.Category_Id == subCategoriesFitler.SubCategoryId);
+                    query = query.Where(subCategory => subCategory.Category_Id == subCategoriesFilter.SubCategoryId);
                 }
 
-                if (!string.IsNullOrEmpty(subCategoriesFitler.SubCategoryName))
+                if (!string.IsNullOrEmpty(subCategoriesFilter.SubCategoryName))
                 {
-                    query = query.Where(subCategory => subCategory.Name.Contains(subCategoriesFitler.SubCategoryName));
+                    query = query.Where(subCategory => subCategory.Name.Contains(subCategoriesFilter.SubCategoryName));
                 }
 
-                if (subCategoriesFitler.Is_Deleted)
+                if (subCategoriesFilter.Is_Deleted)
                 {
-                    query = query.Where(subCategory => subCategory.Is_Deleted == subCategoriesFitler.Is_Deleted);
+                    query = query.Where(subCategory => subCategory.Is_Deleted == subCategoriesFilter.Is_Deleted);
                 }
 
 
 
 
                 if (!query.Any())
-                    return new ServiceResponse<PaginationResponse<SubCategory>> { Success = true, Message = "SubCategories not found" };
+                    return new ServiceResponse<PaginationResponse<GetAllSubCategoriesDto>> { Success = true, Message = "SubCategories not found" };
 
                 var count = await query.CountAsync();
 
-                var subCategories = await query.Skip((subCategoriesFitler.PageNumber - 1) * subCategoriesFitler.PageSize)
-                                            .Take(subCategoriesFitler.PageSize)
+                var subCategories = await query.Skip((subCategoriesFilter.PageNumber - 1) * subCategoriesFilter.PageSize)
+                                            .Take(subCategoriesFilter.PageSize)
                                             .ToListAsync();
+                                               
+                var subcategoriesDtoList = subCategories.Select(subcategory => new GetAllSubCategoriesDto
+                {
+                    Name = subcategory.Name,
+                    Description = subcategory.Description,
+                    Photo = subcategory.Photo,
+                    Id = subcategory.Id,
+                    CategoryId = subcategory.Category_Id,
+                    IsDeleted = subcategory.Is_Deleted,
 
-                var paginationResponse = new PaginationResponse<SubCategory>
+                }).ToList();
+
+                var paginationResponse = new PaginationResponse<GetAllSubCategoriesDto>
                 {
                     Length = count,
-                    Collection = subCategories
+                    Collection = subcategoriesDtoList,
                 };
 
-                return new ServiceResponse<PaginationResponse<SubCategory>>
+                return new ServiceResponse<PaginationResponse<GetAllSubCategoriesDto>>
                 {
                     Data = paginationResponse,
                     Message = "SubCategories retrieved successfully",
                     Success = true
                 };
             }
-            catch (Exception ex)
+            catch (Exception )
             {
-                return new ServiceResponse<PaginationResponse<SubCategory>> { Data = null, Success = false, Message = "An error occurred while retrieving SubCategories: " + ex.Message };
+                return new ServiceResponse<PaginationResponse<GetAllSubCategoriesDto>> { Data = null, Success = false, Message = "An error occurred while retrieving SubCategories " };
             }
         }
 
@@ -213,6 +243,37 @@ namespace StoreManagement.Application.Services
 
 
                 return new ServiceResponse<bool> { Success = false, Message = "An error occurred while deleting the SubCategory" };
+            }
+        }
+
+        public async Task<ServiceResponse<List<DropDownSubCategoriesDto>>> GetSubCategoriesDropDownList()
+        {
+            try
+            {
+                var subcategories = await _subCategoryRepo.GetAllAsync(filterPredicate: a => true);
+
+                var subcategoriesDtoList = subcategories.Select(subcategory => new DropDownSubCategoriesDto
+                {
+                    Name = subcategory.Name,
+                    Id = subcategory.Id,
+
+                }).ToList();
+
+                return new ServiceResponse<List<DropDownSubCategoriesDto>>
+                {
+                    Data = subcategoriesDtoList,
+                    Message = "Categories retrieved successfully",
+                    Success = true
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ServiceResponse<List<DropDownSubCategoriesDto>>
+                {
+                    Data = null,
+                    Success = false,
+                    Message = "An error occurred while retrieving categories "
+                };
             }
         }
     }

@@ -3,15 +3,14 @@
 
 namespace StoreManagement.Domain.Entities
 {
-    public class SubCategory : BaseEntity<Guid>
+    public class Product : BaseEntity<Guid>
     {
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public string? Photo { get; set; }
-        public Guid Category_Id { get; set; }
-        public Category Category { get; set; }
-        public ICollection<Product> Products { get; set; } = new HashSet<Product>();
-
-
+        public decimal? Price { get; set; }
+        public int? StockQuantity { get; set; }
+        public Guid SubCategory_Id { get; set; }
+        public SubCategory SubCategory { get; set; }
     }
 }

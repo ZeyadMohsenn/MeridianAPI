@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using StoreManagement.Application.Interfaces;
 using StoreManagement.Bases;
-using StoreManagement.Bases.Domain;
 using StoreManagement.Bases.Domain.Model;
 using StoreManagement.Domain;
 using StoreManagement.Domain.Dtos;
@@ -60,26 +59,40 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
 
 
 
-    public async Task<ServiceResponse<Category>> GetCategory(Guid id)
+    public async Task<ServiceResponse<GetCategoryDto>> GetCategory(Guid id)
     {
         try
         {
             Category category = _categoryRepo.FindByID(id);
             if (category != null)
             {
-                return new ServiceResponse<Category>() { Data = category, Success = true, Message = "Retrieved Successfully" };
+                GetCategoryDto categoryDto = new GetCategoryDto
+                {
+                    Name = category.Name,
+                    Description = category.Description,
+                    Photo = category.Photo,
+                    Id = category.Id,
+                    IsDeleted = category.Is_Deleted
+                };
+
+                return new ServiceResponse<GetCategoryDto>()
+                {
+                    Data = categoryDto,
+                    Success = true,
+                    Message = "Retrieved Successfully"
+                };
             }
             else
             {
-                return new ServiceResponse<Category>() { Success = false, Message = "Category not found" };
+                return new ServiceResponse<GetCategoryDto>() { Success = false, Message = "Category not found" };
             }
         }
         catch (Exception)
         {
-            return new ServiceResponse<Category>() {Data = null, Success = false, Message = "An error occurred while getting category" };
+            return new ServiceResponse<GetCategoryDto>() { Data = null, Success = false, Message = "An error occurred while getting category" };
         }
-
     }
+
 
     public async Task<ServiceResponse<PaginationResponse<GetAllCategoriesDto>>> GetCategoriesAsync(GetAllCategoriesFilter categoriesFitler)
     {
@@ -109,7 +122,7 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
                 Photo = category.Photo,
                 Id = category.Id,
                 IsDeleted = category.Is_Deleted,
-                
+
             }).ToList();
 
             var paginationResponse = new PaginationResponse<GetAllCategoriesDto>
@@ -161,7 +174,7 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
                     Success = false,
                     Message = "Category not found"
                 };
-             
+
             }
             dbCategory.Name = categoryDto.Name;
             dbCategory.Description = categoryDto.Description;
@@ -236,7 +249,7 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
             {
                 Data = null,
                 Success = false,
-                Message = "An error occurred while retrieving categories " 
+                Message = "An error occurred while retrieving categories "
             };
         }
     }

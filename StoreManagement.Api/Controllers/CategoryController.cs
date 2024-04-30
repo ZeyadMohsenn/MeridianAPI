@@ -2,11 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using StoreManagement.Application.Interfaces;
 using StoreManagement.Bases;
-using StoreManagement.Bases.Domain;
 using StoreManagement.Bases.Domain.Model;
 using StoreManagement.Domain;
 using StoreManagement.Domain.Dtos;
-using StoreManagement.Domain.Entities;
 
 namespace StoreManagement.Api.Controllers
 {
@@ -31,7 +29,7 @@ namespace StoreManagement.Api.Controllers
         [HttpGet("{id}"), AllowAnonymous]
         public async Task<IActionResult> GetCategory(Guid id)
         {
-            ServiceResponse<Category> category = await _categoryServices.GetCategory(id);
+            ServiceResponse<GetCategoryDto> category = await _categoryServices.GetCategory(id);
             return Ok(category);
         }
 
@@ -43,11 +41,11 @@ namespace StoreManagement.Api.Controllers
 
             if (response.Success)
             {
-                return Ok(response); 
+                return Ok(response);
             }
             else
             {
-                return BadRequest(response); 
+                return BadRequest(response);
             }
         }
         [HttpGet("GetAllDropDown"), AllowAnonymous]
@@ -68,7 +66,7 @@ namespace StoreManagement.Api.Controllers
         [HttpPut, AllowAnonymous]
         public async Task<IActionResult> UpdateCategory(UpdateCategoryDto categoryDto, Guid id)
         {
-            
+
 
 
             var updatedCategory = await _categoryServices.UpdateCategory(categoryDto, id);

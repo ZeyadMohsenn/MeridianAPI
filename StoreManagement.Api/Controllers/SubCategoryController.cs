@@ -32,13 +32,13 @@ namespace StoreManagement.Api.Controllers
         [HttpGet("{id}"), AllowAnonymous]
         public async Task<IActionResult> GetSubCategory(Guid id)
         {
-            ServiceResponse<SubCategory> subCategory = await _subCategoryServices.GetSubCategory(id);
+            ServiceResponse<GetSubCategoryDto> subCategory = await _subCategoryServices.GetSubCategory(id);
             return Ok(subCategory);
         }
         [HttpGet("GetAll"), AllowAnonymous]
         public async Task<IActionResult> GetSubCategories([FromQuery] GetAllSubCategoriesFilter subCategoriesFitler)
         {
-            ServiceResponse<PaginationResponse<SubCategory>> response = await _subCategoryServices.GetSubCategoriesAsync(subCategoriesFitler);
+            ServiceResponse<PaginationResponse<GetAllSubCategoriesDto>> response = await _subCategoryServices.GetSubCategoriesAsync(subCategoriesFitler);
 
             if (response.Success)
             {
@@ -47,6 +47,20 @@ namespace StoreManagement.Api.Controllers
             else
             {
                 return BadRequest(response);
+            }
+        }
+        [HttpGet("GetAllDropDown"), AllowAnonymous]
+
+        public async Task<IActionResult> GetSubCategoriesDropDownList()
+        {
+            ServiceResponse<List<DropDownSubCategoriesDto>> subcategories = await _subCategoryServices.GetSubCategoriesDropDownList();
+            if (subcategories.Success)
+            {
+                return Ok(subcategories);
+            }
+            else
+            {
+                return NotFound();
             }
         }
         [HttpPut, AllowAnonymous]

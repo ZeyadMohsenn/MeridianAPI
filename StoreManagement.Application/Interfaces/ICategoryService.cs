@@ -10,7 +10,7 @@ namespace StoreManagement.Application.Interfaces;
 public interface ICategoryService
 {
     Task<ServiceResponse<bool>> AddCategory(AddCategoryDto addCategoryDto);
-    Task<ServiceResponse<Category>> GetCategory(Guid id);
+    Task<ServiceResponse<GetCategoryDto>> GetCategory(Guid id);
     Task<ServiceResponse<PaginationResponse<GetAllCategoriesDto>>> GetCategoriesAsync(GetAllCategoriesFilter categoryFilter);
     Task<ServiceResponse<bool>> UpdateCategory(UpdateCategoryDto categoryDto, Guid id);
 

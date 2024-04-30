@@ -12,6 +12,7 @@ public static class StartupBuilder
     {
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<ISubCategoryService, SubCategoryService>();
+        services.AddScoped<IProductService, ProductService>();
 
 
     }
