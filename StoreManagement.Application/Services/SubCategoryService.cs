@@ -117,6 +117,10 @@ namespace StoreManagement.Application.Services
                 {
                     query = query.Where(subCategory => subCategory.Category_Id == subCategoriesFilter.SubCategoryId);
                 }
+                if (subCategoriesFilter.CategoryId != Guid.Empty)
+                {
+                    query = query.Where(s => s.Category_Id == subCategoriesFilter.CategoryId);
+                }
 
                 if (!string.IsNullOrEmpty(subCategoriesFilter.SubCategoryName))
                 {

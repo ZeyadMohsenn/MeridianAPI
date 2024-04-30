@@ -10,6 +10,7 @@ namespace StoreManagement.Domain.Entities
         public string? Photo { get; set; }
         public decimal? Price { get; set; }
         public int? StockQuantity { get; set; }
+        public bool isActive { get; set; } = true;
         public Guid SubCategory_Id { get; set; }
         public SubCategory SubCategory { get; set; }
     }

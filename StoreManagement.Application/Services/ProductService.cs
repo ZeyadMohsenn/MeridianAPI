@@ -87,33 +87,6 @@ namespace StoreManagement.Application.Services
                 return new ServiceResponse<Product>() { Data = null, Success = false, Message = "An error occurred while getting the Product" };
             }
         }
-        public async Task<ServiceResponse<bool>> DeleteProductAsync(Guid id)
-        {
-            if (id == Guid.Empty)
-            {
-                return new ServiceResponse<bool>() { Success = false, Message = "Please Enter the id" };
-
-            }
-            try
-            {
-                Product Product = _productRepo.FindByID(id);
-                if (Product == null)
-                {
-                    return new ServiceResponse<bool> { Success = false, Message = "Product not found" };
-                }
-
-                _productRepo.Remove(Product);
-                var affectedRows = await _unitOfWork.CommitAsync();
-
-                return new ServiceResponse<bool> { Success = affectedRows > 0, Message = "Product deleted successfully" };
-            }
-            catch (Exception ex)
-            {
-
-
-                return new ServiceResponse<bool> { Success = false, Message = "An error occurred while deleting the Product" };
-            }
-        }
 
         public async Task<ServiceResponse<PaginationResponse<Product>>> GetProductsAsync(GetAllProductsFilter productFilter)
         {
@@ -124,6 +97,10 @@ namespace StoreManagement.Application.Services
                 if (productFilter.ProductId != Guid.Empty)
                 {
                     query = query.Where(Product => Product.Id == productFilter.ProductId);
+                }
+                if (productFilter.SubCategoryId != Guid.Empty)
+                {
+                    query = query.Where(p => p.SubCategory_Id == productFilter.SubCategoryId);
                 }
 
                 if (!string.IsNullOrEmpty(productFilter.ProductName))
@@ -215,6 +192,68 @@ namespace StoreManagement.Application.Services
             catch (Exception ex)
             {
                 return await LogError(ex, false);
+            }
+        }
+        public async Task<ServiceResponse<bool>> DeleteProductAsync(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                return new ServiceResponse<bool>() { Success = false, Message = "Please Enter the id" };
+
+            }
+            try
+            {
+                Product product = _productRepo.FindByID(id);
+                if (product == null)
+                {
+                    return new ServiceResponse<bool> { Success = false, Message = "Product not found" };
+                }
+
+                _productRepo.Remove(product);
+                var affectedRows = await _unitOfWork.CommitAsync();
+
+                return new ServiceResponse<bool> { Success = affectedRows > 0, Message = "Product deleted successfully" };
+            }
+            catch (Exception ex)
+            {
+
+
+                return new ServiceResponse<bool> { Success = false, Message = "An error occurred while deleting the Product" };
+            }
+        }
+
+        public async Task<ServiceResponse<bool>> DeactivateProduct(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                return new ServiceResponse<bool>() { Success = false, Message = "Please Enter the id" };
+
+            }
+            try
+            {
+                Product product = _productRepo.FindByID(id);
+                if (product == null)
+                {
+                    return new ServiceResponse<bool> { Success = false, Message = "Product not found" };
+                }
+                if (product.StockQuantity == 0 & product.isActive == false)
+                {
+                    return new ServiceResponse<bool> { Success = false, Message = "Product out of stock and can't be activate" };
+
+                }
+
+                product.isActive = !product.isActive;
+
+                if (product.StockQuantity == 0)
+                    product.isActive = false ;
+
+                return new ServiceResponse<bool> { Success = true };
+            }
+            catch (Exception )
+            {
+
+
+                return new ServiceResponse<bool> { Success = false, Message = "An error occurred " };
             }
         }
     }

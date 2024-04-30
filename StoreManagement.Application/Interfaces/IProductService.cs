@@ -15,6 +15,7 @@ namespace StoreManagement.Application.Interfaces
         Task<ServiceResponse<bool>> UpdateProduct(UpdateProductDto productDto, Guid id);
 
         Task<ServiceResponse<bool>> DeleteProductAsync(Guid id);
+        Task<ServiceResponse<bool>> DeactivateProduct(Guid id);
 
 
 

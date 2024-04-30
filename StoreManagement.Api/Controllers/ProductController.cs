@@ -74,5 +74,15 @@ namespace StoreManagement.Api.Controllers
 
             return Ok(updatedSubCategory);
         }
+        [HttpPut("Deactivate"), AllowAnonymous]
+        public async Task<IActionResult> DeactivateProduct(Guid id)
+        {
+            ServiceResponse<bool> product = await _productServices.DeactivateProduct(id);
+            if(product.Success)
+            {
+                return Ok(product);
+            }
+            return BadRequest(product);
+        }
     }
 }

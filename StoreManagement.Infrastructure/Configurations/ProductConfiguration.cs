@@ -25,6 +25,7 @@ namespace StoreManagement.Infrastructure.Configurations
             builder.Property(s => s.Photo)
                    .HasMaxLength(100);
             builder.Property(s => s.StockQuantity);
+            builder.Property(s => s.isActive);
             builder.Property(s => s.Price);
 
             builder.HasOne<SubCategory>(s => s.SubCategory)

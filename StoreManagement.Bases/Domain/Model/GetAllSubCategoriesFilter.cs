@@ -11,5 +11,6 @@ namespace StoreManagement.Bases.Domain.Model
         public Guid SubCategoryId { get; set; }
         public string SubCategoryName { get; set; }    
         public bool Is_Deleted { get; set; }
+        public Guid CategoryId { get; set; }
     }
 }
