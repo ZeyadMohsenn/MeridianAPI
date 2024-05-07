@@ -21,18 +21,15 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
         {
             if (string.IsNullOrWhiteSpace(addCategoryDto.Name))
                 return new ServiceResponse<bool>() { Success = false, Message = "Empty Name" };
+
             addCategoryDto.Name = addCategoryDto.Name.Trim();
 
             var temp = await _categoryRepo.FindAsync(c => c.Name == addCategoryDto.Name);
+
             if (temp != null)
-            {
                 return new ServiceResponse<bool>() { Success = false, Message = $"{addCategoryDto.Name} already exisitng" };
-            }
-            if (addCategoryDto.Description == null)
-            {
-                addCategoryDto.Description = string.Empty;
-            }
-            addCategoryDto.Description = addCategoryDto.Description.Trim();
+
+            addCategoryDto.Description = addCategoryDto.Description?.Trim();
 
 
             Category dbCategory = new()
@@ -42,6 +39,7 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
             };
 
             await _categoryRepo.AddAsync(dbCategory);
+
             await _unitOfWork.CommitAsync();
 
             return new ServiceResponse<bool>()
@@ -56,36 +54,32 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
         }
     }
 
-
-
-
     public async Task<ServiceResponse<GetCategoryDto>> GetCategory(Guid id)
     {
         try
         {
-            Category category = _categoryRepo.FindByID(id);
-            if (category != null)
-            {
-                GetCategoryDto categoryDto = new GetCategoryDto
-                {
-                    Name = category.Name,
-                    Description = category.Description,
-                    Photo = category.Photo,
-                    Id = category.Id,
-                    IsDeleted = category.Is_Deleted
-                };
+            Category? category = await _categoryRepo.FindByIdAsync(id);
 
-                return new ServiceResponse<GetCategoryDto>()
-                {
-                    Data = categoryDto,
-                    Success = true,
-                    Message = "Retrieved Successfully"
-                };
-            }
-            else
-            {
+            if (category is null)
                 return new ServiceResponse<GetCategoryDto>() { Success = false, Message = "Category not found" };
-            }
+
+
+            GetCategoryDto categoryDto = new()
+            {
+                Id = category.Id,
+                Name = category.Name,
+                Description = category.Description,
+                Photo = category.Photo,
+                IsDeleted = category.Is_Deleted
+            };
+
+            return new ServiceResponse<GetCategoryDto>()
+            {
+                Data = categoryDto,
+                Success = true,
+                Message = "Retrieved Successfully"
+            };
+
         }
         catch (Exception)
         {
@@ -93,42 +87,36 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
         }
     }
 
-
     public async Task<ServiceResponse<PaginationResponse<GetAllCategoriesDto>>> GetCategoriesAsync(GetAllCategoriesFilter categoriesFitler)
     {
         try
         {
-            var query = _categoryRepo.GetAllQueryableAsync();
+            IQueryable<Category> query = _categoryRepo.GetAllQueryableAsync();
 
             if (!string.IsNullOrEmpty(categoriesFitler.CategoryName))
-            {
                 query = query.Where(category => category.Name.Contains(categoriesFitler.CategoryName));
-            }
 
-            if (categoriesFitler.Is_Deleted)
-            {
+            if (categoriesFitler.Is_Deleted.HasValue)
                 query = query.Where(category => category.Is_Deleted == categoriesFitler.Is_Deleted);
-            }
 
             var count = await query.CountAsync();
 
-            var categories = await query.Skip((categoriesFitler.PageNumber - 1) * categoriesFitler.PageSize)
+            var categories = await query.Select(category => new GetAllCategoriesDto
+                                        {
+                                            Name = category.Name,
+                                            Description = category.Description,
+                                            Photo = category.Photo,
+                                            Id = category.Id,
+                                            IsDeleted = category.Is_Deleted,
+                                        })
+                                        .Skip((categoriesFitler.PageNumber - 1) * categoriesFitler.PageSize)
                                         .Take(categoriesFitler.PageSize)
                                         .ToListAsync();
-            var categoriesDtoList = categories.Select(category => new GetAllCategoriesDto
-            {
-                Name = category.Name,
-                Description = category.Description,
-                Photo = category.Photo,
-                Id = category.Id,
-                IsDeleted = category.Is_Deleted,
-
-            }).ToList();
 
             var paginationResponse = new PaginationResponse<GetAllCategoriesDto>
             {
                 Length = count,
-                Collection = categoriesDtoList
+                Collection = categories
             };
 
             return new ServiceResponse<PaginationResponse<GetAllCategoriesDto>>
@@ -147,38 +135,29 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
     public async Task<ServiceResponse<bool>> UpdateCategory(UpdateCategoryDto categoryDto, Guid id)
     {
         if (id == Guid.Empty)
-        {
             return new ServiceResponse<bool>() { Success = false, Message = "Please Enter the id" };
-
-        }
         try
         {
             categoryDto.Name = categoryDto.Name.Trim();
-            var temp = await _categoryRepo.FindAsync(c => c.Name == categoryDto.Name);
+
+            categoryDto.Description = categoryDto.Description?.Trim();
+
+            Category? dbCategory = _categoryRepo.FindByID(id);
+
+            if(dbCategory is null)
+                return new ServiceResponse<bool>() { Success = false, Message = "Please Enter the id" };
+
+            var temp = await _categoryRepo.FindAsync(c => c.Name == categoryDto.Name && c.Id != dbCategory.Id);
+
             if (temp != null)
-            {
                 return new ServiceResponse<bool>() { Success = false, Message = $"{categoryDto.Name} already exisitng" };
-            }
-            if (categoryDto.Description == null)
-            {
-                categoryDto.Description = string.Empty;
-            }
-            categoryDto.Description = categoryDto.Description.Trim();
 
-            Category dbCategory = _categoryRepo.FindByID(id);
-
-            if (dbCategory == null)
-            {
-                return new ServiceResponse<bool>()
-                {
-                    Success = false,
-                    Message = "Category not found"
-                };
-
-            }
             dbCategory.Name = categoryDto.Name;
+
             dbCategory.Description = categoryDto.Description;
+
             _categoryRepo.Update(dbCategory);
+
             await _unitOfWork.CommitAsync();
 
             return new ServiceResponse<bool>()
@@ -193,32 +172,25 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
         }
     }
 
-
-
     public async Task<ServiceResponse<bool>> DeleteCategoryAsync(Guid id)
     {
         if (id == Guid.Empty)
-        {
             return new ServiceResponse<bool>() { Success = false, Message = "Please Enter the id" };
-
-        }
         try
         {
             Category category = _categoryRepo.FindByID(id);
-            if (category == null)
-            {
-                return new ServiceResponse<bool> { Success = false, Message = "Category not found" };
-            }
 
-            _categoryRepo.Remove(category);
+            if (category == null)
+                return new ServiceResponse<bool> { Success = false, Message = "Category not found" };
+
+            _categoryRepo.Delete(category);
+
             var affectedRows = await _unitOfWork.CommitAsync();
 
             return new ServiceResponse<bool> { Success = affectedRows > 0, Message = "Category deleted successfully" };
         }
         catch (Exception ex)
         {
-
-
             return new ServiceResponse<bool> { Success = false, Message = "An error occurred while deleting the category" };
         }
     }
@@ -227,14 +199,16 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
     {
         try
         {
-            var categories = await _categoryRepo.GetAllAsync(filterPredicate: a => true);
+            var queryableCategories = await _categoryRepo.GetAllQueryableAsync(filterPredicate: a => true);
 
-            var categoriesDtoList = categories.Select(category => new DropDownCategoriesDto
-            {
-                Name = category.Name,
-                Id = category.Id,
+            var categoriesDtoList = await queryableCategories
+                .Select(category => new DropDownCategoriesDto
+                {
+                    Name = category.Name,
+                    Id = category.Id,
+                })
+                .ToListAsync();
 
-            }).ToList();
 
             return new ServiceResponse<List<DropDownCategoriesDto>>
             {

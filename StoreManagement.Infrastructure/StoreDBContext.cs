@@ -1,5 +1,3 @@
-using System.Reflection;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -7,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using StoreManagement.Bases;
 using StoreManagement.Domain.Entities;
+using System.Reflection;
+using System.Security.Claims;
 
 namespace StoreManagement.Infrastructure;
 
@@ -52,6 +52,10 @@ public class StoreDbContext : IdentityDbContext<ApplicationUser, ApplicationRole
 
     public virtual DbSet<Category> Category { get; set; }
     public virtual DbSet<SubCategory> SubCategories { get; set; }
+
+    public virtual DbSet<Product> Products { get; set; }
+    public virtual DbSet<Order> Orders { get; set; }
+    public virtual DbSet<OrderProduct> ProductsProducts { get; set; }
 
     #endregion
 

@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.IdentityModel.Tokens;
+using StoreManagement.Bases.Infrastructure;
 using StoreManagement.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -10,12 +12,11 @@ using System.Threading.Tasks;
 
 namespace StoreManagement.Infrastructure.Configurations
 {
-    public class SubCategoryConfiguration : IEntityTypeConfiguration<SubCategory>
+    public class SubCategoryConfiguration : BaseConfiguration<SubCategory>
     {
-        public void Configure(EntityTypeBuilder<SubCategory> builder)
+        public override void Configure(EntityTypeBuilder<SubCategory> builder)
         {
-
-            builder.HasKey(s => s.Id);
+            base.Configure(builder);
 
             builder.Property(s => s.Name)
                    .IsRequired(); 

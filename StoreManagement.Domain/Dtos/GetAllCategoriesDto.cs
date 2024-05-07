@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,7 +9,10 @@ namespace StoreManagement.Domain.Dtos
 {
     public class GetAllCategoriesDto
     {
-        public string Name { get; set; } = string.Empty;
+        [Required]
+        [MinLength(3), MaxLength(25)]
+        public required string Name { get; set; } = string.Empty;
+        [StringLength(250)]
         public string? Description { get; set; }
         public string? Photo { get; set; }
         public Guid Id { get; set; }

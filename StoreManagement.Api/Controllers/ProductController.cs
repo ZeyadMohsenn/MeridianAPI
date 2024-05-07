@@ -30,7 +30,7 @@ namespace StoreManagement.Api.Controllers
         [HttpGet("{id}"), AllowAnonymous]
         public async Task<IActionResult> GetProduct(Guid id)
         {
-            ServiceResponse<Product> Product = await _productServices.GetProduct(id);
+            ServiceResponse<GetProductDto> Product = await _productServices.GetProduct(id);
             return Ok(Product);
         }
         [HttpDelete, AllowAnonymous]
@@ -50,7 +50,7 @@ namespace StoreManagement.Api.Controllers
         [HttpGet("GetAll"), AllowAnonymous]
         public async Task<IActionResult> GetProducts([FromQuery] GetAllProductsFilter prodctsFitler)
         {
-            ServiceResponse<PaginationResponse<Product>> response = await _productServices.GetProductsAsync(prodctsFitler);
+            ServiceResponse<PaginationResponse<GetProductsDto>> response = await _productServices.GetProductsAsync(prodctsFitler);
 
             if (response.Success)
             {
@@ -68,20 +68,18 @@ namespace StoreManagement.Api.Controllers
             var updatedSubCategory = await _productServices.UpdateProduct(productDto, id);
 
             if (updatedSubCategory == null)
-            {
-                return NotFound("Product not found.");
-            }
+                return NotFound("Product not found.");            
 
             return Ok(updatedSubCategory);
         }
         [HttpPut("Deactivate"), AllowAnonymous]
-        public async Task<IActionResult> DeactivateProduct(Guid id)
+        public async Task<IActionResult> SwitchProductActivation(Guid id)
         {
-            ServiceResponse<bool> product = await _productServices.DeactivateProduct(id);
+            ServiceResponse<bool> product = await _productServices.SwitchActivationProduct(id);
+            
             if(product.Success)
-            {
                 return Ok(product);
-            }
+            
             return BadRequest(product);
         }
     }

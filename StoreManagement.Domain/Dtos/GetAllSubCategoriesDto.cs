@@ -1,12 +1,19 @@
-﻿namespace StoreManagement.Domain.Dtos
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace StoreManagement.Domain.Dtos
 {
     public class GetAllSubCategoriesDto
     {
-        public string Name { get; set; } = string.Empty;
-        public string? Description { get; set; }
-        public Guid CategoryId { get; set; }
-        public string? Photo { get; set; }
         public Guid Id { get; set; }
+
+        [Required]
+        [MinLength(3), MaxLength(25)]
+        public required string Name { get; set; } = string.Empty;
+        [StringLength(250)]
+        public string? Description { get; set; }
+        public string? Photo { get; set; }
         public bool IsDeleted { get; set; }
+        public Guid CategoryId { get; set; }
+        public string CategoryName { get; set; }
     }
 }

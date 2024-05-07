@@ -57,7 +57,7 @@ public class BaseRepository<TEntity, TContext> : IBaseRepository<TEntity> where 
 
     }
 
-    public Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> filterPredicate,
+    public Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> filterPredicate = null,
                                             Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> Include = null,
                                             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
                                             Expression<Func<TEntity, TEntity>> select = null,
@@ -249,11 +249,15 @@ public class BaseRepository<TEntity, TContext> : IBaseRepository<TEntity> where 
         return query.CountAsync();
     }
 
-    public TEntity FindByID(Guid Id)
+    public TEntity? FindByID(Guid Id)
     {
         return _dbContext.Set<TEntity>().Where(a => !a.Is_Deleted).FirstOrDefault(z => z.Id.Equals(Id));
     }
 
+    public async Task<TEntity> FindByIdAsync(Guid Id)
+    {
+        return await Task.FromResult(_dbContext.Set<TEntity>().Where(a => !a.Is_Deleted).FirstOrDefault(z => z.Id.Equals(Id)));
+    }
 }
 
 //public class BaseRepository<T, YDbContext, IdType> : IBaseRepository<T, IdType> where T : BaseEntity<IdType> where YDbContext : DbContext

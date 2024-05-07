@@ -1,8 +1,12 @@
-﻿namespace StoreManagement.Domain.Dtos
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace StoreManagement.Domain.Dtos
 {
     public class DropDownSubCategoriesDto
     {
-        public string Name { get; set; } = string.Empty;
+        [Required]
+        [MinLength(3), MaxLength(25)]
+        public required string Name { get; set; } = string.Empty;
         public Guid Id { get; set; }
     }
 }

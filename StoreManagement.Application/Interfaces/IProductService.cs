@@ -9,13 +9,13 @@ namespace StoreManagement.Application.Interfaces
     public interface IProductService
     {
         Task<ServiceResponse<bool>> AddProduct(AddProductDto addProductDto);
-        Task<ServiceResponse<Product>> GetProduct(Guid id);
-        Task<ServiceResponse<PaginationResponse<Product>>> GetProductsAsync(GetAllProductsFilter productFitler);
+        Task<ServiceResponse<GetProductDto>> GetProduct(Guid id);
+        Task<ServiceResponse<PaginationResponse<GetProductsDto>>> GetProductsAsync(GetAllProductsFilter productFitler);
 
         Task<ServiceResponse<bool>> UpdateProduct(UpdateProductDto productDto, Guid id);
 
         Task<ServiceResponse<bool>> DeleteProductAsync(Guid id);
-        Task<ServiceResponse<bool>> DeactivateProduct(Guid id);
+        Task<ServiceResponse<bool>> SwitchActivationProduct(Guid id);
 
 
 

@@ -14,16 +14,17 @@ namespace StoreManagement.Bases
         void Remove(TEntity entity);
         void RemoveRange(IEnumerable<TEntity> entites);
         void Update(TEntity entity);
-        TEntity FindByID(Guid Id);
+        TEntity? FindByID(Guid Id);
+        Task<TEntity> FindByIdAsync(Guid Id);
         IQueryable<TEntity> GetAllQueryableAsync();
 
-        Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> filterPredicate, Func<IQueryable<TEntity>, IIncludableQueryable<TEntity,
+        Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> filterPredicate = null, Func<IQueryable<TEntity>, IIncludableQueryable<TEntity,
             object>> Include = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
             Expression<Func<TEntity, TEntity>> select = null, int? take = null, bool ignoreFilter = false);
         Task<List<TEntity>> GetAllAsyncWithTracking(Expression<Func<TEntity, bool>> filterPredicate, Func<IQueryable<TEntity>, IIncludableQueryable<TEntity,
             object>> Include = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
             Expression<Func<TEntity, TEntity>> select = null, int? take = null, bool ignoreFilter = false);
-        Task<IQueryable<TEntity>> GetAllQueryableAsync(Expression<Func<TEntity, bool>> filterPredicate=null,
+        Task<IQueryable<TEntity>> GetAllQueryableAsync(Expression<Func<TEntity, bool>>? filterPredicate=null,
                                                        Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> Include = null,
                                                        Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
                                                        bool withDeleted = false);
