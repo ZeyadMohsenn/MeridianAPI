@@ -13,8 +13,7 @@ public static class StartupBuilder
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<ISubCategoryService, SubCategoryService>();
         services.AddScoped<IProductService, ProductService>();
-
-
+        services.AddScoped<IOrderService, OrderService>();
     }
 
     public static void ConfigureRepositoriesTypes(IServiceCollection services)

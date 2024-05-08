@@ -12,8 +12,8 @@ using StoreManagement.Infrastructure;
 namespace StoreManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(StoreDbContext))]
-    [Migration("20240507133518_NewMigration")]
-    partial class NewMigration
+    [Migration("20240508114004_intital")]
+    partial class intital
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -316,14 +316,9 @@ namespace StoreManagement.Infrastructure.Migrations
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.HasIndex("Is_Deleted");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Orders", (string)null);
                 });
@@ -487,17 +482,6 @@ namespace StoreManagement.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("StoreManagement.Domain.Entities.Order", b =>
-                {
-                    b.HasOne("StoreManagement.Domain.Entities.ApplicationUser", "User")
-                        .WithMany("Orders")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("StoreManagement.Domain.Entities.OrderProduct", b =>
                 {
                     b.HasOne("StoreManagement.Domain.Entities.Order", "Order")
@@ -546,8 +530,6 @@ namespace StoreManagement.Infrastructure.Migrations
 
             modelBuilder.Entity("StoreManagement.Domain.Entities.ApplicationUser", b =>
                 {
-                    b.Navigation("Orders");
-
                     b.Navigation("UserRoles");
                 });
 
