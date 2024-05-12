@@ -9,6 +9,7 @@ namespace StoreManagement.Domain.Dtos.Order
         [Required]
         public List<OrderProductDto> OrderProducts { get; set; }
         public decimal Discount { get; set; }
+        public DiscountEnum DiscountType { get; set; }
         public decimal TaxPercentage { get; set; }
         public decimal PaidAmount { get; set; } = 0;    
 
@@ -20,5 +21,10 @@ namespace StoreManagement.Domain.Dtos.Order
         public Guid ProductId { get; set; }
         [Required]
         public int Quantity { get; set; } 
+    }
+    public enum DiscountEnum
+    {
+        Percentage,
+        Fixed
     }
 }

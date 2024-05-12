@@ -1,5 +1,7 @@
 ﻿using StoreManagement.Bases;
-using StoreManagement.Domain.Dtos;
+using StoreManagement.Bases.Domain.Model;
+using StoreManagement.Bases.Enums;
+using StoreManagement.Domain;
 using StoreManagement.Domain.Dtos.Order;
 
 namespace StoreManagement.Application.Interfaces;
@@ -7,5 +9,7 @@ namespace StoreManagement.Application.Interfaces;
 public interface IOrderService
 {
     Task<ServiceResponse<bool>> AddOrder(AddOrderDto addOrderDto);
+    Task<ServiceResponse<PaginationResponse<GetOrdersDto>>> GetOrdersAsync(GetAllOrdersFilter ordersFilter);
+    Task<ServiceResponse<bool>> UpdateOrderStatus(Guid id, OrderStatus orderStatus);
 
 }

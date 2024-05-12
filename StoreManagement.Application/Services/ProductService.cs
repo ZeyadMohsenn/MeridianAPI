@@ -251,6 +251,7 @@ namespace StoreManagement.Application.Services
                     return new ServiceResponse<bool> { Success = false, Message = "Product out of stock and can't be activate" };
 
                 product.isActive = !product.isActive;
+                await _unitOfWork.CommitAsync();
 
                 return new ServiceResponse<bool> { Success = true };
             }
