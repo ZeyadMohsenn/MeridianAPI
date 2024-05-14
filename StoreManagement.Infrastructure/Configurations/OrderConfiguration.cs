@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using StoreManagement.Bases.Infrastructure;
 using StoreManagement.Domain.Entities;
 

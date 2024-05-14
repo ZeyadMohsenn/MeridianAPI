@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace StoreManagement.Domain.Dtos
 {
@@ -14,6 +9,6 @@ namespace StoreManagement.Domain.Dtos
         public required string Name { get; set; } = string.Empty;
         [StringLength(250)]
         public string? Description { get; set; }
-        public required Guid CategoryId { get; set;}
+        public required Guid CategoryId { get; set; }
     }
 }

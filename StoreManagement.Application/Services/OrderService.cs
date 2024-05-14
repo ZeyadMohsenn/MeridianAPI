@@ -7,6 +7,7 @@ using StoreManagement.Bases.Enums;
 using StoreManagement.Domain;
 using StoreManagement.Domain.Dtos.Order;
 using StoreManagement.Domain.Entities;
+using System.Linq.Expressions;
 
 namespace StoreManagement.Application.Services
 {
@@ -50,22 +51,26 @@ namespace StoreManagement.Application.Services
                     _productRepo.Update(productDb);
                 }
 
+                decimal priceBeforeDiscount = totalOrderPrice;
                 decimal remained = 0;
+                decimal priceBeforeTax = 0;
+
                 switch (addOrderDto.DiscountType)
                 {
                     case DiscountEnum.Percentage:
                         totalOrderPrice -= addOrderDto.Discount * totalOrderPrice;
+                        priceBeforeTax = totalOrderPrice;
                         totalOrderPrice += addOrderDto.TaxPercentage * totalOrderPrice;
                         addOrderDto.Discount = addOrderDto.Discount * 100;
                         break;
                     case DiscountEnum.Fixed:
                         totalOrderPrice -= addOrderDto.Discount;
+                        priceBeforeTax = totalOrderPrice;
                         totalOrderPrice += addOrderDto.TaxPercentage * totalOrderPrice;
                         break;
                 }
+
                 remained = totalOrderPrice - addOrderDto.PaidAmount;
-
-
                 if (remained < 0)
                 {
                     return new ServiceResponse<bool>()
@@ -76,22 +81,28 @@ namespace StoreManagement.Application.Services
                     };
                 }
 
+                var orderStatus = OrderStatus.Processing;
+                if (remained == 0)
+                    orderStatus = OrderStatus.Finished;
+
                 var order = new Order
                 {
-                    //UserId = addOrderDto.UserId,   
-                    Status = OrderStatus.Processing,
+                    Status = orderStatus,
                     OrderProducts = addOrderDto.OrderProducts.Select(op => new OrderProduct
                     {
                         ProductId = op.ProductId,
                         Quantity = op.Quantity
                     }).ToList(),
+                    PriceBeforeDiscount = priceBeforeDiscount,
+                    Discount = addOrderDto.Discount,
+                    PriceBeforeTax = priceBeforeTax,
+                    TaxPercentage = addOrderDto.TaxPercentage,
                     TotalPrice = totalOrderPrice,
                     PaidAmount = addOrderDto.PaidAmount,
                     RemainedAmount = remained,
-                    TaxPercentage = addOrderDto.TaxPercentage,
-                    Discount = addOrderDto.Discount,
                     DateTime = DateTime.UtcNow,
                 };
+
                 await _orderRepo.AddAsync(order);
                 await _unitOfWork.CommitAsync();
 
@@ -114,17 +125,67 @@ namespace StoreManagement.Application.Services
             }
         }
 
+        public async Task<ServiceResponse<GetOrderDto>> GetOrder(Guid id)
+        {
+            try
+            {
+                Expression<Func<Order, bool>> filterPredicate = p => p.Id == id;
+
+                Order order = await _orderRepo.FindAsync(filterPredicate, Include: q => q.Include(o => o.OrderProducts).ThenInclude(p => p.Product), asNoTracking: true);
+
+                if (order == null)
+                    return new ServiceResponse<GetOrderDto>() { Success = false, Message = "Order Not Found" };
+
+                var getOrderDto = new GetOrderDto
+                {
+                    Id = order.Id,
+                    Status = order.Status.ToString(),
+                    DateTime = order.DateTime,
+                    PriceBeforeDiscount = order.PriceBeforeDiscount,
+                    Discount = order.Discount,
+                    PriceBeforeTax = order.PriceBeforeTax,
+                    TaxPercentage = order.TaxPercentage,
+                    NetPrice = order.TotalPrice,
+                    PaidAmount = order.PaidAmount,
+                    RemainedAmount = order.RemainedAmount,
+                    NumberOfPieces = order.OrderProducts.Sum(op => op.Quantity),
+                    Products = order.OrderProducts.Select(op => new ProductDto
+                    {
+                        Id = op.ProductId,
+                        Name = op.Product.Name,
+                        Price = op.Product.Price,
+                        Quantity = op.Quantity,
+                    }).ToList()
+                };
+                return new ServiceResponse<GetOrderDto>() { Data = getOrderDto, Success = true };
+
+            }
+            catch
+            {
+                return new ServiceResponse<GetOrderDto>() { Success = false, Message = "An error occurred while processing your request." };
+            }
+        }
+
         public async Task<ServiceResponse<PaginationResponse<GetOrdersDto>>> GetOrdersAsync(GetAllOrdersFilter ordersFilter)
         {
             try
             {
                 IQueryable<Order> query = _orderRepo.GetAllQueryableAsync();
 
-                if (ordersFilter.OrderId != Guid.Empty)
-                    query = query.Where(o => o.Id == ordersFilter.OrderId);
-
                 if (ordersFilter.Status != null)
                     query = query.Where(o => o.Status == ordersFilter.Status);
+
+                if (ordersFilter.From != null && ordersFilter.To != null)
+                    query = query.Where(o => o.DateTime.Date >= ordersFilter.From.Value.Date && o.DateTime.Date <= ordersFilter.To.Value.Date);
+
+                else if (ordersFilter.From != null)
+                    query = query.Where(o => o.DateTime.Date >= ordersFilter.From.Value.Date);
+
+                else if (ordersFilter.To != null)
+                    query = query.Where(o => o.DateTime.Date <= ordersFilter.To.Value.Date);
+
+
+
 
                 var count = await query.CountAsync();
 
@@ -133,8 +194,11 @@ namespace StoreManagement.Application.Services
                                         .Select(o => new GetOrdersDto
                                         {
                                             Id = o.Id,
+                                            DateTime = o.DateTime,
                                             Status = o.Status.ToString(),
+                                            PriceBeforeDiscount = o.PriceBeforeDiscount,
                                             Discount = o.Discount,
+                                            PriceBeforeTax = o.PriceBeforeTax,
                                             TaxPercentage = o.TaxPercentage,
                                             NetPrice = o.TotalPrice,
                                             PaidAmount = o.PaidAmount,
@@ -161,12 +225,46 @@ namespace StoreManagement.Application.Services
             }
         }
 
+        public async Task<ServiceResponse<bool>> Pay(Guid id, PayDto pay)
+        {
+            try
+            {
+                if (id == Guid.Empty)
+                    return new ServiceResponse<bool>() { Success = false, Message = "Please Enter the id" };
+
+                Order order = await _orderRepo.FindByIdAsync(id);
+
+                if (pay.PaymentAmount > order.RemainedAmount)
+                    return new ServiceResponse<bool>() { Success = false, Message = $"The Payment should not be more than: {order.RemainedAmount} " };
+
+                if (pay.PaymentAmount < order.RemainedAmount)
+                {
+                    order.RemainedAmount -= pay.PaymentAmount;
+                    order.PaidAmount += pay.PaymentAmount;
+                    await _unitOfWork.CommitAsync();
+                    return new ServiceResponse<bool> { Success = true, Message = $"The remaining amount now is {order.RemainedAmount}" };
+                }
+
+                order.RemainedAmount = 0;
+                order.PaidAmount = order.TotalPrice;
+                order.Status = OrderStatus.Finished;
+
+                await _unitOfWork.CommitAsync();
+
+                return new ServiceResponse<bool> { Success = true, Message = "All Money have been paid and Order process is finished" };
+
+            }
+            catch
+            {
+                return new ServiceResponse<bool> { Success = false, Message = "An error occurred " };
+            }
+        }
+
         public async Task<ServiceResponse<bool>> UpdateOrderStatus(Guid id, OrderStatus orderStatus)
         {
 
             try
             {
-
                 if (id == Guid.Empty)
                     return new ServiceResponse<bool>() { Success = false, Message = "Please Enter the id" };
 

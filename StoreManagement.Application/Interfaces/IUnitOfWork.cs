@@ -1,5 +1,4 @@
-﻿
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using StoreManagement.Bases;
 
 namespace StoreManagement.Application.Interfaces;

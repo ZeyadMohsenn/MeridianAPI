@@ -76,7 +76,7 @@ namespace StoreManagement.Application.Services
             {
                 Expression<Func<Product, bool>> filterPredicate = p => p.Id == id;
 
-                Product product = await _productRepo.FindAsync(filterPredicate, Include: q => q.Include(p => p.SubCategory));
+                Product product = await _productRepo.FindAsync(filterPredicate, Include: q => q.Include(p => p.SubCategory), asNoTracking: true);
 
                 if (product == null)
                     return new ServiceResponse<GetProductDto>() { Success = false, Message = "Product not found" };
@@ -158,20 +158,20 @@ namespace StoreManagement.Application.Services
 
         public async Task<ServiceResponse<bool>> UpdateProduct(UpdateProductDto productDto, Guid id)
         {
-            if (id == Guid.Empty)
-                return new ServiceResponse<bool>() { Success = false, Message = "Please Enter the id" };
 
             try
             {
+                if (id == Guid.Empty)
+                    return new ServiceResponse<bool>() { Success = false, Message = "Please Enter the id" };
+           
                 productDto.Name = productDto.Name.Trim();
-
 
                 if (productDto.Description == null)
                     productDto.Description = string.Empty;
 
                 productDto.Description = productDto.Description.Trim();
 
-                Product dbProduct = _productRepo.FindByID(id);
+                Product dbProduct = await _productRepo.FindByIdAsync(id);
 
                 var temp = await _productRepo.FindAsync(c => c.Name == productDto.Name);
                 if (temp != null && temp.Name != dbProduct.Name)

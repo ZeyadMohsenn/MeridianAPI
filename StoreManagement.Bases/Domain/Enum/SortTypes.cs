@@ -1,5 +1,4 @@
-﻿
-namespace StoreManagement.Bases.Domain.Enum;
+﻿namespace StoreManagement.Bases.Domain.Enum;
 
 public enum SortTypes
 {

@@ -39,13 +39,10 @@ namespace StoreManagement.Api.Controllers
             ServiceResponse<bool> deleteResponse = await _productServices.DeleteProductAsync(id);
 
             if (deleteResponse.Success)
-            {
                 return Ok(new { message = "Product deleted successfully" });
-            }
+           
             else
-            {
                 return BadRequest(new { message = deleteResponse.Message });
-            }
         }
         [HttpGet("GetAll"), AllowAnonymous]
         public async Task<IActionResult> GetProducts([FromQuery] GetAllProductsFilter prodctsFitler)
@@ -53,13 +50,10 @@ namespace StoreManagement.Api.Controllers
             ServiceResponse<PaginationResponse<GetProductsDto>> response = await _productServices.GetProductsAsync(prodctsFitler);
 
             if (response.Success)
-            {
                 return Ok(response);
-            }
+           
             else
-            {
                 return BadRequest(response);
-            }
         }
         [HttpPut, AllowAnonymous]
         public async Task<IActionResult> UpdateProduct(UpdateProductDto productDto, Guid id)

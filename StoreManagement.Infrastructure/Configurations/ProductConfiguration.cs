@@ -1,12 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
-using StoreManagement.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using StoreManagement.Bases.Infrastructure;
+using StoreManagement.Domain.Entities;
 
 namespace StoreManagement.Infrastructure.Configurations
 {

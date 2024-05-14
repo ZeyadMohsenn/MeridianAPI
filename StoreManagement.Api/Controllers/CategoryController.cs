@@ -40,41 +40,30 @@ namespace StoreManagement.Api.Controllers
             ServiceResponse<PaginationResponse<GetAllCategoriesDto>> response = await _categoryServices.GetCategoriesAsync(categoriesFitler);
 
             if (response.Success)
-            {
                 return Ok(response);
-            }
+
             else
-            {
                 return BadRequest(response);
-            }
         }
         [HttpGet("GetAllDropDown"), AllowAnonymous]
         public async Task<IActionResult> GetCategoriesDropDownList()
         {
             ServiceResponse<List<DropDownCategoriesDto>> categories = await _categoryServices.GetCategoriesDropDownList();
             if (categories.Success)
-            {
                 return Ok(categories);
-            }
+
             else
-            {
                 return NotFound();
-            }
         }
 
 
         [HttpPut, AllowAnonymous]
         public async Task<IActionResult> UpdateCategory(UpdateCategoryDto categoryDto, Guid id)
         {
-
-
-
             var updatedCategory = await _categoryServices.UpdateCategory(categoryDto, id);
 
             if (updatedCategory == null)
-            {
                 return NotFound("Category not found.");
-            }
 
             return Ok(updatedCategory);
         }
@@ -87,13 +76,10 @@ namespace StoreManagement.Api.Controllers
             ServiceResponse<bool> deleteResponse = await _categoryServices.DeleteCategoryAsync(id);
 
             if (deleteResponse.Success)
-            {
                 return Ok(new { message = "Category deleted successfully" });
-            }
+
             else
-            {
                 return BadRequest(new { message = deleteResponse.Message });
-            }
         }
 
 

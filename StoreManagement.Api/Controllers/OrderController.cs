@@ -1,13 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using StoreManagement.Application.Interfaces;
-using StoreManagement.Application.Services;
 using StoreManagement.Bases;
 using StoreManagement.Bases.Domain.Model;
 using StoreManagement.Bases.Enums;
 using StoreManagement.Domain;
-using StoreManagement.Domain.Dtos;
 using StoreManagement.Domain.Dtos.Order;
 
 namespace StoreManagement.Api.Controllers
@@ -29,21 +26,33 @@ namespace StoreManagement.Api.Controllers
             var Order = await _orderServices.AddOrder(addOrderDto);
             return Ok(Order);
         }
+        [HttpGet, AllowAnonymous]
+        public async Task<IActionResult> GetOrder(Guid id)
+        {
+            ServiceResponse<GetOrderDto> order = await _orderServices.GetOrder(id);
+            return Ok(order);
+        }
 
         [HttpGet("GetAll"), AllowAnonymous]
         public async Task<IActionResult> GetOrders([FromQuery] GetAllOrdersFilter ordersFitler)
         {
             ServiceResponse<PaginationResponse<GetOrdersDto>> response = await _orderServices.GetOrdersAsync(ordersFitler);
             if (response.Success)
-            {
                 return Ok(response);
-            }
+           
             else
-            {
                 return BadRequest(response);
-            }
-
         }
+
+        [HttpPut("Pay"), AllowAnonymous]
+        public async Task<IActionResult> Pay(Guid id, PayDto pay)
+        {
+            ServiceResponse<bool> order = await _orderServices.Pay(id, pay);
+            return Ok(order);   
+        }
+
+
+
         [HttpPut("UpdateOrderStatus"), AllowAnonymous]
         public async Task<IActionResult> UpdateOrderStatus(Guid id, OrderStatus status)
         {

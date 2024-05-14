@@ -1,13 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StoreManagement.Application.Interfaces;
-using StoreManagement.Application.Services;
 using StoreManagement.Bases;
-using StoreManagement.Bases.Domain;
 using StoreManagement.Bases.Domain.Model;
 using StoreManagement.Domain;
 using StoreManagement.Domain.Dtos;
-using StoreManagement.Domain.Entities;
 
 namespace StoreManagement.Api.Controllers
 {
@@ -41,13 +38,10 @@ namespace StoreManagement.Api.Controllers
             ServiceResponse<PaginationResponse<GetAllSubCategoriesDto>> response = await _subCategoryServices.GetSubCategoriesAsync(subCategoriesFitler);
 
             if (response.Success)
-            {
                 return Ok(response);
-            }
+         
             else
-            {
                 return BadRequest(response);
-            }
         }
         [HttpGet("GetAllDropDown"), AllowAnonymous]
 
@@ -55,13 +49,10 @@ namespace StoreManagement.Api.Controllers
         {
             ServiceResponse<List<DropDownSubCategoriesDto>> subcategories = await _subCategoryServices.GetSubCategoriesDropDownList();
             if (subcategories.Success)
-            {
                 return Ok(subcategories);
-            }
+          
             else
-            {
                 return NotFound();
-            }
         }
         [HttpPut, AllowAnonymous]
         public async Task<IActionResult> UpdateSubCategory(UpdateSubCategoryDto subCategoryDto, Guid id)
@@ -70,9 +61,7 @@ namespace StoreManagement.Api.Controllers
             var updatedSubCategory = await _subCategoryServices.UpdateSubCategory(subCategoryDto, id);
 
             if (updatedSubCategory == null)
-            {
                 return NotFound("Category not found.");
-            }
 
             return Ok(updatedSubCategory);
         }
@@ -82,13 +71,10 @@ namespace StoreManagement.Api.Controllers
             ServiceResponse<bool> deleteResponse = await _subCategoryServices.DeleteSubCategoryAsync(id);
 
             if (deleteResponse.Success)
-            {
                 return Ok(new { message = "SubCategory deleted successfully" });
-            }
+            
             else
-            {
                 return BadRequest(new { message = deleteResponse.Message });
-            }
         }
 
     }

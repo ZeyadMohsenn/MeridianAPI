@@ -2,7 +2,6 @@
 using StoreManagement.Bases.Domain.Model;
 using StoreManagement.Domain;
 using StoreManagement.Domain.Dtos;
-using StoreManagement.Domain.Entities;
 
 namespace StoreManagement.Application.Interfaces
 {
@@ -16,8 +15,6 @@ namespace StoreManagement.Application.Interfaces
 
         Task<ServiceResponse<bool>> DeleteProductAsync(Guid id);
         Task<ServiceResponse<bool>> SwitchActivationProduct(Guid id);
-
-
 
     }
 }
