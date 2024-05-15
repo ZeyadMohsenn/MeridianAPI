@@ -54,16 +54,18 @@ namespace StoreManagement.Application.Services
                 decimal priceBeforeDiscount = totalOrderPrice;
                 decimal remained = 0;
                 decimal priceBeforeTax = 0;
+                decimal discountAmount = 0;
 
                 switch (addOrderDto.DiscountType)
                 {
                     case DiscountEnum.Percentage:
+                        discountAmount = totalOrderPrice * addOrderDto.Discount;
                         totalOrderPrice -= addOrderDto.Discount * totalOrderPrice;
                         priceBeforeTax = totalOrderPrice;
                         totalOrderPrice += addOrderDto.TaxPercentage * totalOrderPrice;
-                        addOrderDto.Discount = addOrderDto.Discount * 100;
                         break;
                     case DiscountEnum.Fixed:
+                        discountAmount = addOrderDto.Discount;
                         totalOrderPrice -= addOrderDto.Discount;
                         priceBeforeTax = totalOrderPrice;
                         totalOrderPrice += addOrderDto.TaxPercentage * totalOrderPrice;
@@ -93,9 +95,7 @@ namespace StoreManagement.Application.Services
                         ProductId = op.ProductId,
                         Quantity = op.Quantity
                     }).ToList(),
-                    PriceBeforeDiscount = priceBeforeDiscount,
-                    Discount = addOrderDto.Discount,
-                    PriceBeforeTax = priceBeforeTax,
+                    Discount = discountAmount,
                     TaxPercentage = addOrderDto.TaxPercentage,
                     TotalPrice = totalOrderPrice,
                     PaidAmount = addOrderDto.PaidAmount,
@@ -126,7 +126,7 @@ namespace StoreManagement.Application.Services
         }
 
         public async Task<ServiceResponse<GetOrderDto>> GetOrder(Guid id)
-        {
+        {       
             try
             {
                 Expression<Func<Order, bool>> filterPredicate = p => p.Id == id;
@@ -136,14 +136,17 @@ namespace StoreManagement.Application.Services
                 if (order == null)
                     return new ServiceResponse<GetOrderDto>() { Success = false, Message = "Order Not Found" };
 
+
+                decimal priceBeforeTax = order.TotalPrice / (1 + order.TaxPercentage);
+                decimal priceBeforeDiscount = priceBeforeTax + order.Discount;
                 var getOrderDto = new GetOrderDto
                 {
                     Id = order.Id,
                     Status = order.Status.ToString(),
                     DateTime = order.DateTime,
-                    PriceBeforeDiscount = order.PriceBeforeDiscount,
+                    PriceBeforeDiscount = priceBeforeDiscount,
                     Discount = order.Discount,
-                    PriceBeforeTax = order.PriceBeforeTax,
+                    PriceBeforeTax = priceBeforeTax,
                     TaxPercentage = order.TaxPercentage,
                     NetPrice = order.TotalPrice,
                     PaidAmount = order.PaidAmount,
@@ -184,8 +187,17 @@ namespace StoreManagement.Application.Services
                 else if (ordersFilter.To != null)
                     query = query.Where(o => o.DateTime.Date <= ordersFilter.To.Value.Date);
 
+                //decimal totalPriceBeforeTax = 0;
+                //decimal totalPriceBeforeDiscount = 0;
 
+                //foreach (var order in query)
+                //{
+                //    decimal priceBeforeTax = order.TotalPrice / (1 + order.TaxPercentage);
+                //    decimal priceBeforeDiscount = priceBeforeTax - order.Discount;
 
+                //    totalPriceBeforeTax += priceBeforeTax;
+                //    totalPriceBeforeDiscount += priceBeforeDiscount;
+                //}
 
                 var count = await query.CountAsync();
 
@@ -196,9 +208,9 @@ namespace StoreManagement.Application.Services
                                             Id = o.Id,
                                             DateTime = o.DateTime,
                                             Status = o.Status.ToString(),
-                                            PriceBeforeDiscount = o.PriceBeforeDiscount,
+                                            PriceBeforeDiscount = o.TotalPrice / (1 + o.TaxPercentage) + o.Discount,
                                             Discount = o.Discount,
-                                            PriceBeforeTax = o.PriceBeforeTax,
+                                            PriceBeforeTax = o.TotalPrice / (1 + o.TaxPercentage),
                                             TaxPercentage = o.TaxPercentage,
                                             NetPrice = o.TotalPrice,
                                             PaidAmount = o.PaidAmount,
