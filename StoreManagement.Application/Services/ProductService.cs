@@ -42,12 +42,17 @@ namespace StoreManagement.Application.Services
 
                 addProductDto.Description = addProductDto.Description?.Trim();
 
+                if (addProductDto.Discount == null)
+                    addProductDto.Discount = 0;
+
+                  
                 Product dbProduct = new()
                 {
                     Name = addProductDto.Name,
                     Description = addProductDto.Description,
                     SubCategory_Id = addProductDto.SubCategory_Id,
                     Price = addProductDto.Price,
+                    Discount = addProductDto.Discount,
                     StockQuantity = addProductDto.StockQuantity,
 
                 };
@@ -87,6 +92,7 @@ namespace StoreManagement.Application.Services
                     Name = product.Name,
                     Description = product.Description,
                     Price = product.Price,
+                    Discount= product.Discount,
                     Photo = product.Photo,
                     StockQuantity = product.StockQuantity,
                     IsActive = product.isActive,
@@ -129,6 +135,7 @@ namespace StoreManagement.Application.Services
                                               Name = p.Name,
                                               Description = p.Description,
                                               Price = p.Price,
+                                              Discount = p.Discount,
                                               Photo = p.Photo,
                                               StockQuantity = p.StockQuantity,
                                               IsActive = p.isActive,
@@ -197,7 +204,9 @@ namespace StoreManagement.Application.Services
                 dbProduct.Name = productDto.Name;
                 dbProduct.Description = productDto.Description;
                 dbProduct.Price = productDto.Price;
+                dbProduct.Discount = productDto.Discount;
                 dbProduct.StockQuantity = productDto.Quantity;
+
                 _productRepo.Update(dbProduct);
                 await _unitOfWork.CommitAsync();
 

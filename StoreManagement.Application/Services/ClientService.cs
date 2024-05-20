@@ -112,14 +112,13 @@ namespace StoreManagement.Application.Services
         {
             try
             {
-                IQueryable<Client> query = _clientRepo.GetAllQueryableAsync();
-                //IQueryable<Client> query = await _clientRepo.GetAllQueryableAsync(Include: a => a.Include(a => a.Phones));
+                IQueryable<Client> query = _clientRepo.GetAllQueryableAsync().Include(a => a.Phones);
 
                 if (clientsFilter.Name != null)
                     query = query.Where(c => c.Name == clientsFilter.Name);
 
-                //if (clientsFilter.Phone != null)
-                //    query = query.Where(c => c.Phones.Any(p => p.Number == clientsFilter.Phone));
+                if (clientsFilter.Phone != null)
+                    query = query.Where(c => c.Phones.Any(p => p.Number == clientsFilter.Phone));
 
 
                 var count = await query.CountAsync();
@@ -184,7 +183,6 @@ namespace StoreManagement.Application.Services
                             return new ServiceResponse<bool> { Success = false, Message = $"Phone number {phoneDto.Phone} already exists." };
                     }
 
-                    dbClient.Phones.Clear();
 
                     foreach (var phoneDto in clientDto.Phones)
                     {

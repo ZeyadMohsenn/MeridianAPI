@@ -51,6 +51,9 @@ namespace StoreManagement.Application.Services
 
                     if (productDb.StockQuantity < orderProduct.Quantity)
                         return new ServiceResponse<bool>() { Success = false, Message = $"Insufficient stock for product ID: {orderProduct.ProductId}" };
+                 
+                    if(productDb.Discount != 0)
+                        productDb.Price -= (productDb.Price * productDb.Discount);
 
                     decimal totalPriceForProduct = (productDb.Price ?? 0) * orderProduct.Quantity;
                     totalOrderPrice += totalPriceForProduct;

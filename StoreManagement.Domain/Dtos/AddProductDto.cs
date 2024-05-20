@@ -10,8 +10,13 @@ namespace StoreManagement.Domain.Dtos
         [StringLength(250)]
         public string? Description { get; set; }
         public required Guid SubCategory_Id { get; set; }
+      
         [Range(0, int.MaxValue)]
         public decimal Price { get; set; } = 0;
+      
+        [Range(0, int.MaxValue)]
+        public decimal Discount { get; set; }
+
         [Range(0, int.MaxValue)]
         public int StockQuantity { get; set; } = 0;
     }

@@ -19,7 +19,8 @@ namespace StoreManagement.Domain.Dtos.Client
 
     public class PhonesDto
     {
-        public string? Phone { get; set; }
+        
+        public required string Phone { get; set; }
 
     }
 }

@@ -14,6 +14,9 @@ namespace StoreManagement.Domain.Dtos
         public int Quantity { get; set; }
         [Range(0, int.MaxValue)]
         public decimal Price { get; set; } = 0;
-        
+        [Range(0, int.MaxValue)]
+        public decimal Discount { get; set; }
+
+
     }
 }
