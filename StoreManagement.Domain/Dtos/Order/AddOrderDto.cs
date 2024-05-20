@@ -4,8 +4,8 @@ namespace StoreManagement.Domain.Dtos.Order
 {
     public class AddOrderDto
     {
-        //[Required]
-        //public Guid UserId { get; set; }
+        [Required]
+        public Guid ClientId { get; set; }
         [Required]
         public List<OrderProductDto> OrderProducts { get; set; }
         public decimal Discount { get; set; }
@@ -13,7 +13,6 @@ namespace StoreManagement.Domain.Dtos.Order
         public decimal TaxPercentage { get; set; }
         public decimal PaidAmount { get; set; } = 0;    
 
-        // discount w tax w df3 ad eh
     }
     public class OrderProductDto
     {

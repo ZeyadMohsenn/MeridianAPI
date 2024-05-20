@@ -41,9 +41,6 @@ public class SubCategoryService(IUnitOfWork unitOfWork, IMapper mapper) : Servic
                 return new ServiceResponse<bool>() { Success = false, Message = "Category not found" };
 
 
-            //if (addSubCategoryDto.Description == null)
-            //    addSubCategoryDto.Description = string.Empty;
-
             addSubCategoryDto.Description = addSubCategoryDto.Description?.Trim();
 
 
@@ -134,17 +131,6 @@ public class SubCategoryService(IUnitOfWork unitOfWork, IMapper mapper) : Servic
             }).Skip((subCategoriesFilter.PageNumber - 1) * subCategoriesFilter.PageSize)
               .Take(subCategoriesFilter.PageSize)
               .ToListAsync();
-
-            //var subcategoriesDtoList = subCategories.Select(subcategory => new GetAllSubCategoriesDto
-            //{
-            //    Name = subcategory.Name,
-            //    Description = subcategory.Description,
-            //    Photo = subcategory.Photo,
-            //    Id = subcategory.Id,
-            //    CategoryId = subcategory.Category_Id,
-            //    IsDeleted = subcategory.Is_Deleted,
-
-            //}).ToList();
 
             var paginationResponse = new PaginationResponse<GetAllSubCategoriesDto>
             {

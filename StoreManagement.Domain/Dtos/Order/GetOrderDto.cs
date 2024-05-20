@@ -3,6 +3,8 @@
     public class GetOrderDto
     {
         public Guid Id { get; set; }
+        public Guid ClientId { get; set; }
+        public string Client_Name { get; set; }
         public DateTime DateTime { get; set; }
         public string Status { get; set; }
         public decimal PriceBeforeDiscount { get; set; }

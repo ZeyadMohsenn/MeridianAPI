@@ -134,10 +134,12 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
 
     public async Task<ServiceResponse<bool>> UpdateCategory(UpdateCategoryDto categoryDto, Guid id)
     {
-        if (id == Guid.Empty)
-            return new ServiceResponse<bool>() { Success = false, Message = "Please Enter the id" };
+
         try
         {
+            if (id == Guid.Empty)
+                return new ServiceResponse<bool>() { Success = false, Message = "Please Enter the id" };
+
             categoryDto.Name = categoryDto.Name.Trim();
 
             categoryDto.Description = categoryDto.Description?.Trim();
@@ -145,7 +147,7 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
             Category? dbCategory = _categoryRepo.FindByID(id);
 
             if(dbCategory is null)
-                return new ServiceResponse<bool>() { Success = false, Message = "Please Enter the id" };
+                return new ServiceResponse<bool>() { Success = false, Message = "No Client with this Id"};
 
             var temp = await _categoryRepo.FindAsync(c => c.Name == categoryDto.Name && c.Id != dbCategory.Id);
 

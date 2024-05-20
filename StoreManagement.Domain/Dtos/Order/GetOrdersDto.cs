@@ -1,13 +1,12 @@
-﻿using StoreManagement.Domain.Entities;
-
-namespace StoreManagement.Domain.Dtos.Order
+﻿namespace StoreManagement.Domain.Dtos.Order
 {
     public class GetOrdersDto
     {
         public Guid Id { get; set; }
+        public Guid ClientId { get; set; }
         public DateTime DateTime { get; set; }
         public string Status { get; set; }
-        public decimal PriceBeforeDiscount {  get; set; }   
+        public decimal PriceBeforeDiscount { get; set; }
         public decimal Discount { get; set; }
         public decimal PriceBeforeTax { get; set; }
         public decimal TaxPercentage { get; set; }
@@ -18,12 +17,3 @@ namespace StoreManagement.Domain.Dtos.Order
     }
 
 }
-//public ICollection<ProductDto> Products { get; set; } = new List<ProductDto>();
-
-//public class ProductDto
-//{
-//    public Guid Id { get; set; }
-//    public string Name { get; set; }
-//    public int Quantity { get; set; }
-//    public decimal Price { get; set; }
-//}

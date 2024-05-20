@@ -12,18 +12,16 @@ namespace StoreManagement.Infrastructure.Configurations
             builder.Property(s => s.DateTime);
             builder.Property(s => s.Status);
             builder.Property(s => s.TotalPrice);
-            //builder.HasOne(o => o.User)
-            //     .WithMany(u => u.Orders)
-            //     .HasForeignKey(o => o.UserId)
-            //     .IsRequired();
 
             builder.HasMany(o => o.OrderProducts)
                    .WithOne(op => op.Order)
                    .HasForeignKey(op => op.OrderId)
                    .IsRequired();
-            builder.HasMany(o => o.OrderProducts)
-           .WithOne(op => op.Order)
-           .HasForeignKey(op => op.OrderId);
+
+            builder.HasOne(o => o.Client)
+                   .WithMany(c => c.Orders)
+                   .HasForeignKey(o => o.Client_Id)
+                   .IsRequired();
 
         }
     }

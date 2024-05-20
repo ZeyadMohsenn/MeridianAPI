@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using StoreManagement.Bases;
 using StoreManagement.Domain.Entities;
+using StoreManagement.Domain.Entities.StoreManagement.Domain.Entities;
 using System.Reflection;
 using System.Security.Claims;
 
@@ -52,10 +53,11 @@ public class StoreDbContext : IdentityDbContext<ApplicationUser, ApplicationRole
 
     public virtual DbSet<Category> Category { get; set; }
     public virtual DbSet<SubCategory> SubCategories { get; set; }
-
     public virtual DbSet<Product> Products { get; set; }
     public virtual DbSet<Order> Orders { get; set; }
     public virtual DbSet<OrderProduct> ProductsProducts { get; set; }
+    public virtual DbSet<Client> Clients { get; set; }
+    public virtual DbSet<Phone> Phones { get; set; }
 
     #endregion
 

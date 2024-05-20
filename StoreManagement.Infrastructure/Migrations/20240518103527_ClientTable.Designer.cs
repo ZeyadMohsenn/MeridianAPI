@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StoreManagement.Infrastructure;
 
@@ -11,9 +12,11 @@ using StoreManagement.Infrastructure;
 namespace StoreManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(StoreDbContext))]
-    partial class StoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240518103527_ClientTable")]
+    partial class ClientTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -301,10 +304,6 @@ namespace StoreManagement.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -313,6 +312,10 @@ namespace StoreManagement.Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -434,29 +437,6 @@ namespace StoreManagement.Infrastructure.Migrations
                     b.HasIndex("SubCategory_Id");
 
                     b.ToTable("Products", (string)null);
-                });
-
-            modelBuilder.Entity("StoreManagement.Domain.Entities.StoreManagement.Domain.Entities.Phone", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ClientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("Is_Deleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Number")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClientId");
-
-                    b.ToTable("Phones");
                 });
 
             modelBuilder.Entity("StoreManagement.Domain.Entities.SubCategory", b =>
@@ -588,17 +568,6 @@ namespace StoreManagement.Infrastructure.Migrations
                     b.Navigation("SubCategory");
                 });
 
-            modelBuilder.Entity("StoreManagement.Domain.Entities.StoreManagement.Domain.Entities.Phone", b =>
-                {
-                    b.HasOne("StoreManagement.Domain.Entities.Client", "Client")
-                        .WithMany("Phones")
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Client");
-                });
-
             modelBuilder.Entity("StoreManagement.Domain.Entities.SubCategory", b =>
                 {
                     b.HasOne("StoreManagement.Domain.Entities.Category", "Category")
@@ -628,8 +597,6 @@ namespace StoreManagement.Infrastructure.Migrations
             modelBuilder.Entity("StoreManagement.Domain.Entities.Client", b =>
                 {
                     b.Navigation("Orders");
-
-                    b.Navigation("Phones");
                 });
 
             modelBuilder.Entity("StoreManagement.Domain.Entities.Order", b =>

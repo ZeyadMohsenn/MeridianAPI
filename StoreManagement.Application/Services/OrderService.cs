@@ -5,6 +5,7 @@ using StoreManagement.Bases;
 using StoreManagement.Bases.Domain.Model;
 using StoreManagement.Bases.Enums;
 using StoreManagement.Domain;
+using StoreManagement.Domain.Dtos.Client;
 using StoreManagement.Domain.Dtos.Order;
 using StoreManagement.Domain.Entities;
 using System.Linq.Expressions;
@@ -17,8 +18,8 @@ namespace StoreManagement.Application.Services
         private readonly IMapper _mapper = mapper;
         private readonly IBaseRepository<Order> _orderRepo = unitOfWork.GetRepository<Order>();
         private readonly IBaseRepository<Product> _productRepo = unitOfWork.GetRepository<Product>();
-        //private readonly UserManager<ApplicationUser> _userManager;
-        //private readonly IBaseRepository<OrderProduct> _orderProductRepo = unitOfWork.GetRepository<OrderProduct>();
+        private readonly IBaseRepository<Client> _clientRepo = unitOfWork.GetRepository<Client>();
+
 
 
         public async Task<ServiceResponse<bool>> AddOrder(AddOrderDto addOrderDto)
@@ -32,6 +33,12 @@ namespace StoreManagement.Application.Services
                         Message = $"Please insert Products to your order",
                         Data = false
                     };
+
+                var existingClient = await _clientRepo.FindByIdAsync(addOrderDto.ClientId);
+              
+                if (existingClient == null)
+                    return new ServiceResponse<bool>() { Success = false, Message = "The Client is not existing" };
+
 
                 decimal totalOrderPrice = 0;
 
@@ -89,6 +96,7 @@ namespace StoreManagement.Application.Services
 
                 var order = new Order
                 {
+                    Client_Id = addOrderDto.ClientId,
                     Status = orderStatus,
                     OrderProducts = addOrderDto.OrderProducts.Select(op => new OrderProduct
                     {
@@ -126,12 +134,14 @@ namespace StoreManagement.Application.Services
         }
 
         public async Task<ServiceResponse<GetOrderDto>> GetOrder(Guid id)
-        {       
+        {
             try
             {
                 Expression<Func<Order, bool>> filterPredicate = p => p.Id == id;
 
-                Order order = await _orderRepo.FindAsync(filterPredicate, Include: q => q.Include(o => o.OrderProducts).ThenInclude(p => p.Product), asNoTracking: true);
+                Order order = await _orderRepo.FindAsync(filterPredicate, Include: q => q.Include(o=> o.Client)
+                                                                                    .Include(o => o.OrderProducts)
+                                                                                    .ThenInclude(p => p.Product), asNoTracking: true);
 
                 if (order == null)
                     return new ServiceResponse<GetOrderDto>() { Success = false, Message = "Order Not Found" };
@@ -139,9 +149,12 @@ namespace StoreManagement.Application.Services
 
                 decimal priceBeforeTax = order.TotalPrice / (1 + order.TaxPercentage);
                 decimal priceBeforeDiscount = priceBeforeTax + order.Discount;
+
                 var getOrderDto = new GetOrderDto
                 {
                     Id = order.Id,
+                    Client_Name = order.Client.Name,
+                    ClientId = order.Client_Id,
                     Status = order.Status.ToString(),
                     DateTime = order.DateTime,
                     PriceBeforeDiscount = priceBeforeDiscount,
@@ -187,18 +200,6 @@ namespace StoreManagement.Application.Services
                 else if (ordersFilter.To != null)
                     query = query.Where(o => o.DateTime.Date <= ordersFilter.To.Value.Date);
 
-                //decimal totalPriceBeforeTax = 0;
-                //decimal totalPriceBeforeDiscount = 0;
-
-                //foreach (var order in query)
-                //{
-                //    decimal priceBeforeTax = order.TotalPrice / (1 + order.TaxPercentage);
-                //    decimal priceBeforeDiscount = priceBeforeTax - order.Discount;
-
-                //    totalPriceBeforeTax += priceBeforeTax;
-                //    totalPriceBeforeDiscount += priceBeforeDiscount;
-                //}
-
                 var count = await query.CountAsync();
 
                 var orders = await query.Skip(ordersFilter.PageNumber - 1)
@@ -206,6 +207,7 @@ namespace StoreManagement.Application.Services
                                         .Select(o => new GetOrdersDto
                                         {
                                             Id = o.Id,
+                                            ClientId = o.Client_Id,
                                             DateTime = o.DateTime,
                                             Status = o.Status.ToString(),
                                             PriceBeforeDiscount = o.TotalPrice / (1 + o.TaxPercentage) + o.Discount,
