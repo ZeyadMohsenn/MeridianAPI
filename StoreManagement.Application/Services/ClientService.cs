@@ -161,7 +161,11 @@ namespace StoreManagement.Application.Services
                 if (id == Guid.Empty)
                     return new ServiceResponse<bool> { Success = false, Message = "Please enter a valid ID." };
 
-                Client dbClient = await _clientRepo.FindByIdAsync(id);
+                Expression<Func<Client, bool>> filterPredicate = p => p.Id == id;
+
+                Client dbClient = await _clientRepo.FindAsync(filterPredicate, Include: q => q.Include(c => c.Phones));
+
+
                 if (dbClient == null)
                     return new ServiceResponse<bool> { Success = false, Message = "No client found with this ID." };
 
@@ -174,24 +178,27 @@ namespace StoreManagement.Application.Services
                 if (!string.IsNullOrEmpty(clientDto.EmailAddress))
                     dbClient.Email = clientDto.EmailAddress;
 
-                if (clientDto.Phones != null)
+                var existingPhones = dbClient.Phones.Select(p => p.Number).ToList();
+                var newPhones = clientDto.Phones.Select(p => p.Phone).ToList();
+
+                var phonesToRemove = existingPhones.Except(newPhones).ToList();
+                foreach (var phone in phonesToRemove)
                 {
-                    foreach (var phoneDto in clientDto.Phones)
+                    var phoneToRemove = dbClient.Phones.FirstOrDefault(p => p.Number == phone);
+                    if (phoneToRemove != null)
                     {
-                        var existingPhone = await _phoneRepo.FindAsync(p => p.Number == phoneDto.Phone && p.ClientId != id);
-                        if (existingPhone != null)
-                            return new ServiceResponse<bool> { Success = false, Message = $"Phone number {phoneDto.Phone} already exists." };
+                        dbClient.Phones.Remove(phoneToRemove);
                     }
+                }
 
-
-                    foreach (var phoneDto in clientDto.Phones)
+                var phonesToAdd = newPhones.Except(existingPhones).ToList();
+                foreach (var phone in phonesToAdd)
+                {
+                    dbClient.Phones.Add(new Phone
                     {
-                        dbClient.Phones.Add(new Phone
-                        {
-                            Number = phoneDto.Phone,
-                            ClientId = dbClient.Id
-                        });
-                    }
+                        Number = phone,
+                        ClientId = dbClient.Id
+                    });
                 }
 
                 _clientRepo.Update(dbClient);
@@ -199,9 +206,9 @@ namespace StoreManagement.Application.Services
 
                 return new ServiceResponse<bool> { Success = true, Message = "Client updated successfully." };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return new ServiceResponse<bool> { Success = false, Message = $"An error occurred while updating the client " };
+                return new ServiceResponse<bool> { Success = false, Message = $"An error occurred while updating the client: {ex.Message}" };
             }
         }
 
