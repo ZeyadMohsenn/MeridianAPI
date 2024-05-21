@@ -18,6 +18,7 @@ namespace StoreManagement.Application.Interfaces
         Task<ServiceResponse<GetClientDto>> GetClient(Guid id);
         Task<ServiceResponse<PaginationResponse<GetClientsDto>>> GetClients(GetAllClientsFilter clientsFilter);
         Task<ServiceResponse<bool>> UpdateClient(UpdateClientDto clientDto, Guid id);
+        Task<ServiceResponse<bool>> DeleteClient(Guid id);
 
 
 

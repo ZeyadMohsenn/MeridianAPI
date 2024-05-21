@@ -63,6 +63,7 @@ namespace StoreManagement.Application.Services
             }
         }
 
+
         public async Task<ServiceResponse<GetClientDto>> GetClient(Guid id)
         {
             try
@@ -212,6 +213,28 @@ namespace StoreManagement.Application.Services
             }
         }
 
+        public async Task<ServiceResponse<bool>> DeleteClient(Guid id)
+        {
+            if (id == Guid.Empty)
+                return new ServiceResponse<bool>() { Success = false, Message = "Please Enter the id" };
+            try
+            {
+                Client client = _clientRepo.FindByID(id);
+
+                if (client == null)
+                    return new ServiceResponse<bool> { Success = false, Message = "Client not found" };
+
+                _clientRepo.Delete(client);
+
+                var affectedRows = await _unitOfWork.CommitAsync();
+
+                return new ServiceResponse<bool> { Success = affectedRows > 0, Message = "Client deleted successfully" };
+            }
+            catch (Exception ex)
+            {
+                return new ServiceResponse<bool> { Success = false, Message = "An error occurred while deleting the Client" };
+            }
+        }
 
 
     }

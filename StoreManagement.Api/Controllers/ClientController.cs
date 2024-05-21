@@ -46,5 +46,12 @@ namespace StoreManagement.Api.Controllers
             var updatedClient = await _clientService.UpdateClient(clientDto, id);   
             return Ok(updatedClient);
         }
+
+        [HttpDelete, AllowAnonymous]
+        public async Task<IActionResult> DeleteClient(Guid id)
+        {
+            var result = await _clientService.DeleteClient(id);
+            return Ok(result);
+        }
     }
 }
