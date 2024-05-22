@@ -179,29 +179,30 @@ namespace StoreManagement.Application.Services
                 if (!string.IsNullOrEmpty(clientDto.EmailAddress))
                     dbClient.Email = clientDto.EmailAddress;
 
-                var existingPhones = dbClient.Phones.Select(p => p.Number).ToList();
-                var newPhones = clientDto.Phones.Select(p => p.Phone).ToList();
+                var newPhoneNumbers = clientDto.Phones.Select(p => p.Phone).ToList();
 
-                var phonesToRemove = existingPhones.Except(newPhones).ToList();
-                foreach (var phone in phonesToRemove)
+                foreach (var phone in newPhoneNumbers)
                 {
-                    var phoneToRemove = dbClient.Phones.FirstOrDefault(p => p.Number == phone);
-                    if (phoneToRemove != null)
-                    {
-                        dbClient.Phones.Remove(phoneToRemove);
-                    }
+                    var existingPhone = await _phoneRepo.FindAsync(p => p.Number == phone && p.ClientId != id);
+                    if (existingPhone != null)
+                        return new ServiceResponse<bool> { Success = false, Message = $"Phone number {phone} already exists." };
                 }
 
-                var phonesToAdd = newPhones.Except(existingPhones).ToList();
-                foreach (var phone in phonesToAdd)
+                var existingPhones = dbClient.Phones.ToList();
+                foreach (var phone in existingPhones)
+                {
+                    dbClient.Phones.Remove(phone);
+                    _phoneRepo.Remove(phone); 
+                }
+
+                foreach (var phoneDto in clientDto.Phones)
                 {
                     dbClient.Phones.Add(new Phone
                     {
-                        Number = phone,
+                        Number = phoneDto.Phone,
                         ClientId = dbClient.Id
                     });
                 }
-
                 _clientRepo.Update(dbClient);
                 await _unitOfWork.CommitAsync();
 
@@ -214,11 +215,12 @@ namespace StoreManagement.Application.Services
         }
 
         public async Task<ServiceResponse<bool>> DeleteClient(Guid id)
-        {
-            if (id == Guid.Empty)
-                return new ServiceResponse<bool>() { Success = false, Message = "Please Enter the id" };
+        {      
             try
             {
+                if (id == Guid.Empty)
+                    return new ServiceResponse<bool>() { Success = false, Message = "Please Enter the id" };
+
                 Client client = _clientRepo.FindByID(id);
 
                 if (client == null)

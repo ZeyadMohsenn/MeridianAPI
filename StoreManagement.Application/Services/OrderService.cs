@@ -5,7 +5,6 @@ using StoreManagement.Bases;
 using StoreManagement.Bases.Domain.Model;
 using StoreManagement.Bases.Enums;
 using StoreManagement.Domain;
-using StoreManagement.Domain.Dtos.Client;
 using StoreManagement.Domain.Dtos.Order;
 using StoreManagement.Domain.Entities;
 using System.Linq.Expressions;
@@ -27,68 +26,100 @@ namespace StoreManagement.Application.Services
             try
             {
                 if (addOrderDto.OrderProducts.Count == 0)
-                    return new ServiceResponse<bool>()
+                {
+                    return new ServiceResponse<bool>
                     {
                         Success = false,
-                        Message = $"Please insert Products to your order",
+                        Message = "Please insert Products to your order",
                         Data = false
                     };
+                }
 
                 var existingClient = await _clientRepo.FindByIdAsync(addOrderDto.ClientId);
-              
                 if (existingClient == null)
-                    return new ServiceResponse<bool>() { Success = false, Message = "The Client is not existing" };
-
+                {
+                    return new ServiceResponse<bool>
+                    {
+                        Success = false,
+                        Message = "The Client does not exist",
+                        Data = false
+                    };
+                }
 
                 decimal totalOrderPrice = 0;
+                decimal priceBeforeDiscount = 0;
+                decimal totalProductLevelDiscount = 0;
 
                 foreach (var orderProduct in addOrderDto.OrderProducts)
                 {
                     var productDb = await _productRepo.FindByIdAsync(orderProduct.ProductId);
 
                     if (productDb == null)
-                        return new ServiceResponse<bool>() { Success = false, Message = $"Product not found for ID: {orderProduct.ProductId}" };
+                    {
+                        return new ServiceResponse<bool>
+                        {
+                            Success = false,
+                            Message = $"Product not found for ID: {orderProduct.ProductId}",
+                            Data = false
+                        };
+                    }
 
                     if (productDb.StockQuantity < orderProduct.Quantity)
-                        return new ServiceResponse<bool>() { Success = false, Message = $"Insufficient stock for product ID: {orderProduct.ProductId}" };
-                 
-                    if(productDb.Discount != 0)
-                        productDb.Price -= (productDb.Price * productDb.Discount);
+                    {
+                        return new ServiceResponse<bool>
+                        {
+                            Success = false,
+                            Message = $"Insufficient stock for product ID: {orderProduct.ProductId}",
+                            Data = false
+                        };
+                    }
 
-                    decimal totalPriceForProduct = (productDb.Price ?? 0) * orderProduct.Quantity;
-                    totalOrderPrice += totalPriceForProduct;
+                    decimal productPriceBeforeDiscount = productDb.Price ?? 0;
+                    decimal totalPriceForProductBeforeDiscount = productPriceBeforeDiscount * orderProduct.Quantity;
+                    priceBeforeDiscount += totalPriceForProductBeforeDiscount;
+
+                    decimal productPriceAfterDiscount = productPriceBeforeDiscount;
+                    decimal discountAmountForProduct = 0;
+                    if (productDb.Discount != 0)
+                    {
+                        discountAmountForProduct = productPriceBeforeDiscount * productDb.Discount;
+                        productPriceAfterDiscount -= discountAmountForProduct;
+                        totalProductLevelDiscount += discountAmountForProduct * orderProduct.Quantity;
+                    }
+
+                    decimal totalPriceForProductAfterDiscount = productPriceAfterDiscount * orderProduct.Quantity;
+                    totalOrderPrice += totalPriceForProductAfterDiscount;
+
                     productDb.StockQuantity -= orderProduct.Quantity;
-                    _productRepo.Update(productDb);
+                    _productRepo.Update(productDb); 
                 }
 
-                decimal priceBeforeDiscount = totalOrderPrice;
-                decimal remained = 0;
-                decimal priceBeforeTax = 0;
-                decimal discountAmount = 0;
-
+                decimal orderLevelDiscount = 0;
+                decimal discountAmount = totalProductLevelDiscount;
                 switch (addOrderDto.DiscountType)
                 {
                     case DiscountEnum.Percentage:
-                        discountAmount = totalOrderPrice * addOrderDto.Discount;
-                        totalOrderPrice -= addOrderDto.Discount * totalOrderPrice;
-                        priceBeforeTax = totalOrderPrice;
-                        totalOrderPrice += addOrderDto.TaxPercentage * totalOrderPrice;
+                        orderLevelDiscount = totalOrderPrice * addOrderDto.Discount;
+                        totalOrderPrice -= orderLevelDiscount;
+                        discountAmount += orderLevelDiscount;
                         break;
                     case DiscountEnum.Fixed:
-                        discountAmount = addOrderDto.Discount;
-                        totalOrderPrice -= addOrderDto.Discount;
-                        priceBeforeTax = totalOrderPrice;
-                        totalOrderPrice += addOrderDto.TaxPercentage * totalOrderPrice;
+                        orderLevelDiscount = addOrderDto.Discount;
+                        totalOrderPrice -= orderLevelDiscount;
+                        discountAmount += orderLevelDiscount;
                         break;
                 }
 
-                remained = totalOrderPrice - addOrderDto.PaidAmount;
+                decimal priceBeforeTax = totalOrderPrice;
+                totalOrderPrice += addOrderDto.TaxPercentage * totalOrderPrice;
+
+                decimal remained = totalOrderPrice - addOrderDto.PaidAmount;
                 if (remained < 0)
                 {
-                    return new ServiceResponse<bool>()
+                    return new ServiceResponse<bool>
                     {
                         Success = false,
-                        Message = $"Recheck the Paid Amount because it's more than the total order price",
+                        Message = "Recheck the Paid Amount because it's more than the total order price",
                         Data = false
                     };
                 }
@@ -117,20 +148,20 @@ namespace StoreManagement.Application.Services
                 await _orderRepo.AddAsync(order);
                 await _unitOfWork.CommitAsync();
 
-                return new ServiceResponse<bool>()
+                return new ServiceResponse<bool>
                 {
                     Success = true,
                     Message = "Order Created Successfully",
-                    Data = true,
+                    Data = true
                 };
-
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return new ServiceResponse<bool>()
+
+                return new ServiceResponse<bool>
                 {
                     Success = false,
-                    Message = $"An error occurred while adding the order",
+                    Message = "An error occurred while adding the order",
                     Data = false
                 };
             }
@@ -142,7 +173,7 @@ namespace StoreManagement.Application.Services
             {
                 Expression<Func<Order, bool>> filterPredicate = p => p.Id == id;
 
-                Order order = await _orderRepo.FindAsync(filterPredicate, Include: q => q.Include(o=> o.Client)
+                Order order = await _orderRepo.FindAsync(filterPredicate, Include: q => q.Include(o => o.Client)
                                                                                     .Include(o => o.OrderProducts)
                                                                                     .ThenInclude(p => p.Product), asNoTracking: true);
 
@@ -173,6 +204,7 @@ namespace StoreManagement.Application.Services
                         Id = op.ProductId,
                         Name = op.Product.Name,
                         Price = op.Product.Price,
+                        PieceDiscountAmount = op.Product.Price * op.Product.Discount,
                         Quantity = op.Quantity,
                     }).ToList()
                 };
