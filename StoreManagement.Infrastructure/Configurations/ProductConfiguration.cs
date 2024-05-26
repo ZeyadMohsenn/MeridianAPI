@@ -21,7 +21,7 @@ namespace StoreManagement.Infrastructure.Configurations
             builder.Property(s => s.StockQuantity);
             builder.Property(s => s.isActive);
             builder.Property(s => s.Price);
-            builder.Property(s => s.Discount);
+            //builder.Property(s => s.Discount);
             builder.Property(s => s.SubCategory_Id)
             .IsRequired();
             builder.HasOne<SubCategory>(s => s.SubCategory)

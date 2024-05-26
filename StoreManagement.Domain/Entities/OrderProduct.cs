@@ -9,5 +9,7 @@ namespace StoreManagement.Domain.Entities
         public Guid ProductId { get; set; }
         public Product Product { get; set; }
         public int Quantity { get; set; }
+        public decimal ProductDiscount { get; set; }
+
     }
 }

@@ -19,7 +19,9 @@ namespace StoreManagement.Domain.Dtos.Order
         [Required]
         public Guid ProductId { get; set; }
         [Required]
-        public int Quantity { get; set; } 
+        public int Quantity { get; set; }
+        public decimal ProductDiscount { get; set; }
+
     }
     public enum DiscountEnum
     {

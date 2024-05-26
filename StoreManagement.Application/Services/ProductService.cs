@@ -42,20 +42,8 @@ namespace StoreManagement.Application.Services
 
                 addProductDto.Description = addProductDto.Description?.Trim();
 
-                if (addProductDto.Discount == null)
-                    addProductDto.Discount = 0;
-
                   
-                Product dbProduct = new()
-                {
-                    Name = addProductDto.Name,
-                    Description = addProductDto.Description,
-                    SubCategory_Id = addProductDto.SubCategory_Id,
-                    Price = addProductDto.Price,
-                    Discount = addProductDto.Discount,
-                    StockQuantity = addProductDto.StockQuantity,
-
-                };
+                Product dbProduct = _mapper.Map<Product>(addProductDto);
 
                 await _productRepo.AddAsync(dbProduct);
 
@@ -86,19 +74,7 @@ namespace StoreManagement.Application.Services
                 if (product == null)
                     return new ServiceResponse<GetProductDto>() { Success = false, Message = "Product not found" };
 
-                var getProductDto = new GetProductDto
-                {
-                    Id = product.Id,
-                    Name = product.Name,
-                    Description = product.Description,
-                    Price = product.Price,
-                    Discount= product.Discount,
-                    Photo = product.Photo,
-                    StockQuantity = product.StockQuantity,
-                    IsActive = product.isActive,
-                    SubCategoryId = product.SubCategory_Id,
-                    SubCategoryName = product.SubCategory?.Name 
-                };
+                var getProductDto = _mapper.Map<GetProductDto>(product);
 
                 return new ServiceResponse<GetProductDto>() { Data = getProductDto, Success = true, Message = "Retrieved Successfully" };
             }
@@ -126,22 +102,12 @@ namespace StoreManagement.Application.Services
 
                 var count = await query.CountAsync();
 
+                query = query.Include(p => p.SubCategory);
+
 
                 var products = await query.Skip((productFilter.PageNumber - 1) * productFilter.PageSize)
                                           .Take(productFilter.PageSize)
-                                          .Select(p => new GetProductsDto
-                                          {
-                                              Id = p.Id,
-                                              Name = p.Name,
-                                              Description = p.Description,
-                                              Price = p.Price,
-                                              Discount = p.Discount,
-                                              Photo = p.Photo,
-                                              StockQuantity = p.StockQuantity,
-                                              IsActive = p.isActive,
-                                              SubCategoryId = p.SubCategory_Id,
-                                              SubCategoryName = p.SubCategory.Name
-                                          })
+                                          .Select(p => _mapper.Map<GetProductsDto>(p))
                                           .ToListAsync();
 
                 var paginationResponse = new PaginationResponse<GetProductsDto>
@@ -204,7 +170,6 @@ namespace StoreManagement.Application.Services
                 dbProduct.Name = productDto.Name;
                 dbProduct.Description = productDto.Description;
                 dbProduct.Price = productDto.Price;
-                dbProduct.Discount = productDto.Discount;
                 dbProduct.StockQuantity = productDto.Quantity;
 
                 _productRepo.Update(dbProduct);

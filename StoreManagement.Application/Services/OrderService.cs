@@ -80,9 +80,9 @@ namespace StoreManagement.Application.Services
 
                     decimal productPriceAfterDiscount = productPriceBeforeDiscount;
                     decimal discountAmountForProduct = 0;
-                    if (productDb.Discount != 0)
+                    if (orderProduct.ProductDiscount != 0)
                     {
-                        discountAmountForProduct = productPriceBeforeDiscount * productDb.Discount;
+                        discountAmountForProduct = productPriceBeforeDiscount * orderProduct.ProductDiscount;
                         productPriceAfterDiscount -= discountAmountForProduct;
                         totalProductLevelDiscount += discountAmountForProduct * orderProduct.Quantity;
                     }
@@ -128,22 +128,7 @@ namespace StoreManagement.Application.Services
                 if (remained == 0)
                     orderStatus = OrderStatus.Finished;
 
-                var order = new Order
-                {
-                    Client_Id = addOrderDto.ClientId,
-                    Status = orderStatus,
-                    OrderProducts = addOrderDto.OrderProducts.Select(op => new OrderProduct
-                    {
-                        ProductId = op.ProductId,
-                        Quantity = op.Quantity
-                    }).ToList(),
-                    Discount = discountAmount,
-                    TaxPercentage = addOrderDto.TaxPercentage,
-                    TotalPrice = totalOrderPrice,
-                    PaidAmount = addOrderDto.PaidAmount,
-                    RemainedAmount = remained,
-                    DateTime = DateTime.UtcNow,
-                };
+                var order = _mapper.Map<Order>(addOrderDto);
 
                 await _orderRepo.AddAsync(order);
                 await _unitOfWork.CommitAsync();
@@ -179,35 +164,9 @@ namespace StoreManagement.Application.Services
 
                 if (order == null)
                     return new ServiceResponse<GetOrderDto>() { Success = false, Message = "Order Not Found" };
+                
+                var getOrderDto = _mapper.Map<GetOrderDto>(order);
 
-
-                decimal priceBeforeTax = order.TotalPrice / (1 + order.TaxPercentage);
-                decimal priceBeforeDiscount = priceBeforeTax + order.Discount;
-
-                var getOrderDto = new GetOrderDto
-                {
-                    Id = order.Id,
-                    Client_Name = order.Client.Name,
-                    ClientId = order.Client_Id,
-                    Status = order.Status.ToString(),
-                    DateTime = order.DateTime,
-                    PriceBeforeDiscount = priceBeforeDiscount,
-                    Discount = order.Discount,
-                    PriceBeforeTax = priceBeforeTax,
-                    TaxPercentage = order.TaxPercentage,
-                    NetPrice = order.TotalPrice,
-                    PaidAmount = order.PaidAmount,
-                    RemainedAmount = order.RemainedAmount,
-                    NumberOfPieces = order.OrderProducts.Sum(op => op.Quantity),
-                    Products = order.OrderProducts.Select(op => new ProductDto
-                    {
-                        Id = op.ProductId,
-                        Name = op.Product.Name,
-                        Price = op.Product.Price,
-                        PieceDiscountAmount = op.Product.Price * op.Product.Discount,
-                        Quantity = op.Quantity,
-                    }).ToList()
-                };
                 return new ServiceResponse<GetOrderDto>() { Data = getOrderDto, Success = true };
 
             }
@@ -235,25 +194,16 @@ namespace StoreManagement.Application.Services
                 else if (ordersFilter.To != null)
                     query = query.Where(o => o.DateTime.Date <= ordersFilter.To.Value.Date);
 
+
                 var count = await query.CountAsync();
+
+                query = query.Include(p => p.OrderProducts);
+
 
                 var orders = await query.Skip(ordersFilter.PageNumber - 1)
                                         .Take(ordersFilter.PageSize)
-                                        .Select(o => new GetOrdersDto
-                                        {
-                                            Id = o.Id,
-                                            ClientId = o.Client_Id,
-                                            DateTime = o.DateTime,
-                                            Status = o.Status.ToString(),
-                                            PriceBeforeDiscount = o.TotalPrice / (1 + o.TaxPercentage) + o.Discount,
-                                            Discount = o.Discount,
-                                            PriceBeforeTax = o.TotalPrice / (1 + o.TaxPercentage),
-                                            TaxPercentage = o.TaxPercentage,
-                                            NetPrice = o.TotalPrice,
-                                            PaidAmount = o.PaidAmount,
-                                            RemainedAmount = o.RemainedAmount,
-                                            NumberOfPieces = o.OrderProducts.Sum(op => op.Quantity)
-                                        }).ToListAsync();
+                                        .Select(o => _mapper.Map<GetOrdersDto>(o))
+                                        .ToListAsync();
 
                 var paginationResponse = new PaginationResponse<GetOrdersDto>
                 {

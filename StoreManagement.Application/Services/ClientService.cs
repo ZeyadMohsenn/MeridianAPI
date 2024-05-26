@@ -40,17 +40,11 @@ namespace StoreManagement.Application.Services
                         return new ServiceResponse<bool>() { Success = false, Message = $"Phone number {phoneDto.Phone} already exists." };
                 }
 
-                var existingMail = await _clientRepo.FindAsync(m => m.Email == addClientDto.EmailAddress);
+                var existingMail = await _clientRepo.FindAsync(m => m.Email == addClientDto.Email);
                 if (existingMail != null)
                     return new ServiceResponse<bool>() { Success = false, Message = $"Email is Already exists." };
 
-                var client = new Client
-                {
-                    Name = addClientDto.Name,
-                    Email = addClientDto.EmailAddress,
-                    Address = addClientDto.Address,
-                    Phones = addClientDto.Phones.Select(p => new Phone { Number = p.Phone }).ToList()
-                };
+                var client = _mapper.Map<Client>(addClientDto);
 
                 await _clientRepo.AddAsync(client);
                 await _unitOfWork.CommitAsync();
@@ -75,32 +69,8 @@ namespace StoreManagement.Application.Services
                 if (client == null)
                     return new ServiceResponse<GetClientDto>() { Success = false, Message = "Client Not Found" };
 
-                var getClientDto = new GetClientDto
-                {
-                    Name = client.Name,
-                    EmailAddress = client.Email,
-                    Address = client.Address,
-                    Phones = client.Phones.Select(p => new PhonesDto
-                    {
-                        Phone = p.Number
-                    }).ToList(),
+                var getClientDto = _mapper.Map<GetClientDto>(client);
 
-                    Orders = client.Orders.Select(p => new OrderDto
-                    {
-                        OrderId = p.Id,
-                        DateTime = p.DateTime,
-                        Status = p.Status.ToString(),
-                        NetPrice = p.TotalPrice,
-                        PaidAmount = p.PaidAmount,
-                        RemainedAmount = p.RemainedAmount,
-
-                    }).ToList(),
-                    TotalOrders = client.Orders.Count,
-                    TotalNetPrice = client.Orders.Sum(o => o.TotalPrice),
-                    TotalPaidAmount = client.Orders.Sum(o => o.PaidAmount),
-                    TotalRemainedAmount = client.Orders.Sum(o => o.RemainedAmount)
-
-                };
                 return new ServiceResponse<GetClientDto>() { Data = getClientDto, Success = true };
             }
             catch
@@ -116,7 +86,7 @@ namespace StoreManagement.Application.Services
                 IQueryable<Client> query = _clientRepo.GetAllQueryableAsync().Include(a => a.Phones);
 
                 if (clientsFilter.Name != null)
-                    query = query.Where(c => c.Name == clientsFilter.Name);
+                    query = query.Where(c => c.Name.StartsWith(clientsFilter.Name));
 
                 if (clientsFilter.Phone != null)
                     query = query.Where(c => c.Phones.Any(p => p.Number == clientsFilter.Phone));
@@ -125,18 +95,9 @@ namespace StoreManagement.Application.Services
                 var count = await query.CountAsync();
 
                 var clients = await query.Skip(clientsFilter.PageNumber - 1)
-                                        .Take(clientsFilter.PageSize)
-                                        .Select(o => new GetClientsDto
-                                        {
-                                            Id = o.Id,
-                                            Name = o.Name,
-                                            Address = o.Address,
-                                            EmailAddress = o.Email,
-                                            Phones = o.Phones.Select(p => new PhonesDto
-                                            {
-                                                Phone = p.Number
-                                            }).ToList()
-                                        }).ToListAsync();
+                                         .Take(clientsFilter.PageSize)
+                                         .Select(o => _mapper.Map<GetClientsDto>(o))
+                                         .ToListAsync();
 
                 var paginationResponse = new PaginationResponse<GetClientsDto>
                 {

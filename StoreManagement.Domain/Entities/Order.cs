@@ -8,6 +8,7 @@ namespace StoreManagement.Domain.Entities
         public DateTime DateTime { get; set; }
         public OrderStatus Status { get; set; }
         public decimal Discount { get; set; }
+        public decimal TotalDiscount { get; set; }
         public decimal TaxPercentage { get; set; }
         public decimal TotalPrice { get; set; }
         public decimal PaidAmount { get; set; } = 0;

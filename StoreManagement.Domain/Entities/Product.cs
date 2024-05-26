@@ -9,7 +9,7 @@ namespace StoreManagement.Domain.Entities
         public string? Description { get; set; }
         public string? Photo { get; set; }
         public decimal? Price { get; set; }
-        public decimal Discount { get; set; }
+        //public decimal Discount { get; set; }
         public int? StockQuantity { get; set; }
         public bool isActive { get; set; } = true;
         public Guid SubCategory_Id { get; set; }

@@ -32,11 +32,7 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
             addCategoryDto.Description = addCategoryDto.Description?.Trim();
 
 
-            Category dbCategory = new()
-            {
-                Name = addCategoryDto.Name,
-                Description = addCategoryDto.Description
-            };
+            var dbCategory = _mapper.Map<Category>(addCategoryDto);
 
             await _categoryRepo.AddAsync(dbCategory);
 
@@ -64,14 +60,7 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
                 return new ServiceResponse<GetCategoryDto>() { Success = false, Message = "Category not found" };
 
 
-            GetCategoryDto categoryDto = new()
-            {
-                Id = category.Id,
-                Name = category.Name,
-                Description = category.Description,
-                Photo = category.Photo,
-                IsDeleted = category.Is_Deleted
-            };
+            GetCategoryDto categoryDto = _mapper.Map<GetCategoryDto>(category);
 
             return new ServiceResponse<GetCategoryDto>()
             {
@@ -101,14 +90,7 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
 
             var count = await query.CountAsync();
 
-            var categories = await query.Select(category => new GetAllCategoriesDto
-                                        {
-                                            Name = category.Name,
-                                            Description = category.Description,
-                                            Photo = category.Photo,
-                                            Id = category.Id,
-                                            IsDeleted = category.Is_Deleted,
-                                        })
+            var categories = await query.Select(category => _mapper.Map<GetAllCategoriesDto>(category))
                                         .Skip((categoriesFitler.PageNumber - 1) * categoriesFitler.PageSize)
                                         .Take(categoriesFitler.PageSize)
                                         .ToListAsync();
@@ -204,11 +186,7 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
             var queryableCategories = await _categoryRepo.GetAllQueryableAsync(filterPredicate: a => true);
 
             var categoriesDtoList = await queryableCategories
-                .Select(category => new DropDownCategoriesDto
-                {
-                    Name = category.Name,
-                    Id = category.Id,
-                })
+                .Select(category => _mapper.Map<DropDownCategoriesDto>(category))
                 .ToListAsync();
 
 

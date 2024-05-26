@@ -44,12 +44,7 @@ public class SubCategoryService(IUnitOfWork unitOfWork, IMapper mapper) : Servic
             addSubCategoryDto.Description = addSubCategoryDto.Description?.Trim();
 
 
-            SubCategory dbSubCategory = new()
-            {
-                Name = addSubCategoryDto.Name,
-                Description = addSubCategoryDto.Description,
-                Category_Id = addSubCategoryDto.CategoryId
-            };
+            SubCategory dbSubCategory = _mapper.Map<SubCategory>(addSubCategoryDto);
 
             await _subCategoryRepo.AddAsync(dbSubCategory);
 
@@ -83,15 +78,7 @@ public class SubCategoryService(IUnitOfWork unitOfWork, IMapper mapper) : Servic
             if (subCategory == null)
                 return new ServiceResponse<GetSubCategoryDto>() { Success = false, Message = "SubCategory not found" };
 
-            var getSubCategoryDto = new GetSubCategoryDto
-            {
-                Id = subCategory.Id,
-                Name = subCategory.Name,
-                Description = subCategory.Description,
-                Photo = subCategory.Photo,
-                CategoryId = subCategory.Category_Id,
-                CategoryName = subCategory.Category?.Name
-            };
+            var getSubCategoryDto = _mapper.Map<GetSubCategoryDto>(subCategory);
 
             return new ServiceResponse<GetSubCategoryDto>() { Data = getSubCategoryDto, Success = true, Message = "Retrieved Successfully" };
         }
@@ -118,19 +105,14 @@ public class SubCategoryService(IUnitOfWork unitOfWork, IMapper mapper) : Servic
             if (subCategoriesFilter.Is_Deleted.HasValue)
                 query = query.Where(subCategory => subCategory.Is_Deleted == subCategoriesFilter.Is_Deleted);
 
+            query = query.Include(subCategory => subCategory.Category);
+
             var count = await query.CountAsync();
 
-            var subCategories = await query.Select(s => new GetAllSubCategoriesDto
-            {
-                Id = s.Id,
-                Name = s.Name,
-                Description = s.Description,
-                Photo = s.Photo,
-                CategoryId = s.Category_Id,
-                IsDeleted = s.Is_Deleted,
-            }).Skip((subCategoriesFilter.PageNumber - 1) * subCategoriesFilter.PageSize)
-              .Take(subCategoriesFilter.PageSize)
-              .ToListAsync();
+            var subCategories = await query.Select(sub => _mapper.Map<GetAllSubCategoriesDto>(sub))
+                                           .Skip((subCategoriesFilter.PageNumber - 1) * subCategoriesFilter.PageSize)
+                                           .Take(subCategoriesFilter.PageSize)
+                                           .ToListAsync();
 
             var paginationResponse = new PaginationResponse<GetAllSubCategoriesDto>
             {
@@ -238,11 +220,7 @@ public class SubCategoryService(IUnitOfWork unitOfWork, IMapper mapper) : Servic
             var subcategoriesQueryable = _subCategoryRepo.GetAllQueryableAsync();
 
             var subcategoriesDtoList = await subcategoriesQueryable
-                .Select(subcategory => new DropDownSubCategoriesDto
-                {
-                    Id = subcategory.Id,
-                    Name = subcategory.Name,
-                })
+                .Select(subcategory => _mapper.Map<DropDownSubCategoriesDto>(subcategory))
                 .ToListAsync();
 
             return new ServiceResponse<List<DropDownSubCategoriesDto>>

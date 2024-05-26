@@ -9,7 +9,7 @@ namespace StoreManagement.Domain.Dtos.Client
         public required string Name { get; set; } = string.Empty;
 
         [EmailAddress]
-        public string EmailAddress { get; set; }
+        public string Email { get; set; }
         [Required]
         public string Address { get; set; }
         [Required]
