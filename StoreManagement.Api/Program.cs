@@ -1,8 +1,6 @@
 using Microsoft.OpenApi.Models;
 using StoreManagement.Api;
 using StoreManagement.API.Classes;
-using StoreManagement.Application.Interfaces;
-using StoreManagement.Application.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 Startup startup = new(builder.Configuration);
@@ -12,7 +10,8 @@ builder.Services.AddControllers();
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(option => {
+builder.Services.AddSwaggerGen(option =>
+{
     option.OperationFilter<OpenApiLocalizationHeader>();
     option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -52,6 +51,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

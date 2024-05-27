@@ -15,6 +15,7 @@ public static class StartupBuilder
         services.AddScoped<IProductService, ProductService>();
         services.AddScoped<IOrderService, OrderService>();
         services.AddScoped<IClientService, ClientService>();
+        services.AddScoped<ICashierService, CashierService>();
     }
 
     public static void ConfigureRepositoriesTypes(IServiceCollection services)

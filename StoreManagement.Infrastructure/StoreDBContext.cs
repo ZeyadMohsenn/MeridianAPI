@@ -58,6 +58,7 @@ public class StoreDbContext : IdentityDbContext<ApplicationUser, ApplicationRole
     public virtual DbSet<OrderProduct> ProductsProducts { get; set; }
     public virtual DbSet<Client> Clients { get; set; }
     public virtual DbSet<Phone> Phones { get; set; }
+    public virtual DbSet<Cashier> Cashiers { get; set; }
 
     #endregion
 
