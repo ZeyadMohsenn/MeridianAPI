@@ -9,8 +9,8 @@ namespace StoreManagement.Domain.Dtos
         public required string Name { get; set; } = string.Empty;
         [StringLength(250)]
         public string? Description { get; set; }
-        public string? Photo { get; set; }
         public Guid Id { get; set; }
         public bool IsDeleted { get; set; }
+        public string? ImageUrl { get; set; }
     }
 }

@@ -58,6 +58,7 @@ public class SeedDatabase
         if (!await roleManager.Roles.AnyAsync())
         {
             await roleManager.CreateAsync(new ApplicationRole { Name = "Admin" });
+            await roleManager.CreateAsync(new ApplicationRole { Name = "Cashier" });
         }
     }
 

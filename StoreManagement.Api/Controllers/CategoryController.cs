@@ -5,11 +5,13 @@ using StoreManagement.Bases;
 using StoreManagement.Bases.Domain.Model;
 using StoreManagement.Domain;
 using StoreManagement.Domain.Dtos;
+using StoreManagement.Domain.Login_Token;
 
 namespace StoreManagement.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     [AllowAnonymous]
     public class CategoryController : ApiControllersBase
     {
@@ -19,14 +21,16 @@ namespace StoreManagement.Api.Controllers
         {
             _categoryServices = categoryService;
         }
-        [HttpPost, AllowAnonymous]
+        [HttpPost]
+        //[Authorize(Roles = "Admin")]
+
         public async Task<IActionResult> AddCategory([FromBody] AddCategoryDto addCategoryDto)
         {
             var category = await _categoryServices.AddCategory(addCategoryDto);
             return Ok(category);
         }
 
-        [HttpGet("{id}"), AllowAnonymous]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetCategory(Guid id)
         {
             ServiceResponse<GetCategoryDto> category = await _categoryServices.GetCategory(id);
@@ -34,7 +38,7 @@ namespace StoreManagement.Api.Controllers
         }
 
 
-        [HttpGet("GetAll"), AllowAnonymous]
+        [HttpGet("GetAll")]
         public async Task<IActionResult> GetCategories([FromQuery] GetAllCategoriesFilter categoriesFitler)
         {
             ServiceResponse<PaginationResponse<GetAllCategoriesDto>> response = await _categoryServices.GetCategoriesAsync(categoriesFitler);
@@ -45,7 +49,7 @@ namespace StoreManagement.Api.Controllers
             else
                 return BadRequest(response);
         }
-        [HttpGet("GetAllDropDown"), AllowAnonymous]
+        [HttpGet("GetAllDropDown")]
         public async Task<IActionResult> GetCategoriesDropDownList()
         {
             ServiceResponse<List<DropDownCategoriesDto>> categories = await _categoryServices.GetCategoriesDropDownList();
@@ -57,7 +61,8 @@ namespace StoreManagement.Api.Controllers
         }
 
 
-        [HttpPut, AllowAnonymous]
+        [HttpPut]
+        //[Authorize(nameof(UserRole.Admin))]
         public async Task<IActionResult> UpdateCategory(UpdateCategoryDto categoryDto, Guid id)
         {
             var updatedCategory = await _categoryServices.UpdateCategory(categoryDto, id);
@@ -70,7 +75,9 @@ namespace StoreManagement.Api.Controllers
 
 
 
-        [HttpDelete, AllowAnonymous]
+        [HttpDelete]
+        //[Authorize(nameof(UserRole.Admin))]
+
         public async Task<IActionResult> DeleteCategory(Guid id)
         {
             ServiceResponse<bool> deleteResponse = await _categoryServices.DeleteCategoryAsync(id);
@@ -81,6 +88,14 @@ namespace StoreManagement.Api.Controllers
             else
                 return BadRequest(new { message = deleteResponse.Message });
         }
+        [HttpPost("UploadImage")]
+        [AllowAnonymous]
+        public async Task<IActionResult> UploadImage(Guid categoryId, IFormFile image)
+        {
+            var result =await  _categoryServices.UploadCategoryImage(categoryId, image);
+            return Ok(result);  
+        }
+
 
 
 

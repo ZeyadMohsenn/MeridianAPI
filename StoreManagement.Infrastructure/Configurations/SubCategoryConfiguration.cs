@@ -16,9 +16,6 @@ namespace StoreManagement.Infrastructure.Configurations
             builder.Property(s => s.Description)
                    .HasMaxLength(500);
 
-            builder.Property(s => s.Photo)
-                   .HasMaxLength(100);
-
             builder.HasOne<Category>(s => s.Category)
                    .WithMany(c => c.SubCategories)
                    .HasForeignKey(s => s.Category_Id)

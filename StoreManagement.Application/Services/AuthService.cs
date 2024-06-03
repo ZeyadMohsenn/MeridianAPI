@@ -12,67 +12,93 @@ using System.Text;
 
 namespace StoreManagement.Application.Services
 {
-    public class CashierService : ServiceBase, ICashierService
+    public class AuthService : ServiceBase, IAuthService
     {
-     
+
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
-        private readonly IBaseRepository<Cashier> _cashierRepo;
 
-        public CashierService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager, IConfiguration configuration)
+
+
+        public AuthService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _userManager = userManager;
-            _configuration = configuration;
-            _cashierRepo = _unitOfWork.GetRepository<Cashier>();
+            _configuration = configuration;     
         }
 
-        public async Task<ServiceResponse<bool>> Register(RegisterDto addCashierDto)
+        public async Task<ServiceResponse<bool>> CreateUser(RegisterDto registerDto)
         {
+            var response = new ServiceResponse<bool>();
+
             try
             {
-                if (string.IsNullOrWhiteSpace(addCashierDto.Name))
-                    return new ServiceResponse<bool> { Success = false, Message = "Empty Name" };
+                if (string.IsNullOrWhiteSpace(registerDto.Name))
+                {
+                    response.Success = false;
+                    response.Message = "Empty Name";
+                    return response;
+                }
 
-                addCashierDto.Name = addCashierDto.Name.Trim();
+                registerDto.Name = registerDto.Name.Trim();
 
                 var user = new ApplicationUser
                 {
-                    Full_Name = addCashierDto.Name,
-                    PhoneNumber = addCashierDto.PhoneNumber,
-                    UserName = addCashierDto.PhoneNumber,
+                    Full_Name = registerDto.Name,
+                    PhoneNumber = registerDto.PhoneNumber,
+                    UserName = registerDto.PhoneNumber,
                     Creation_Time = DateTime.Now,
                     Is_Active = true,
                     Is_Deleted = false,
                 };
 
-                var creationResult = await _userManager.CreateAsync(user, addCashierDto.Password);
+                var creationResult = await _userManager.CreateAsync(user, registerDto.Password);
                 if (!creationResult.Succeeded)
-                    return new ServiceResponse<bool> { Success = false, Message = string.Join(", ", creationResult.Errors.Select(e => e.Description)) };
+                {
+                    response.Success = false;
+                    response.Message = string.Join(", ", creationResult.Errors.Select(e => e.Description));
+                    return response;
+                }
 
                 var claimsList = new List<Claim>
-                {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Role, "Cashier"),
-                };
+                 {
+                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                     new Claim(ClaimTypes.Role, registerDto.Role.ToString()),
+                 };
 
                 await _userManager.AddClaimsAsync(user, claimsList);
 
-                var cashier = _mapper.Map<Cashier>(addCashierDto);
-                cashier.User = user;
+                //if (registerDto.Role == UserRole.Cashier)
+                //{
+                //    var cashier = _mapper.Map<Cashier>(registerDto);
+                //    cashier.User = user;
 
-                await _cashierRepo.AddAsync(cashier);
+                //    await _cashierRepo.AddAsync(cashier);
+                //}
+
+                //if (registerDto.Role == UserRole.Admin)
+                //{
+                //    var admin = _mapper.Map<Admin>(registerDto);
+                //    admin.User = user;
+
+                //    await _adminRepo.AddAsync(admin);
+                //}
+
                 await _unitOfWork.CommitAsync();
 
-                return new ServiceResponse<bool> { Success = true, Data = true };
+                response.Success = true;
+                response.Data = true;
             }
             catch (Exception ex)
             {
-                return new ServiceResponse<bool> { Success = false, Message = ex.Message };
+                response.Success = false;
+                response.Message = ex.Message;
             }
+
+            return response;
         }
 
         public async Task<ServiceResponse<TokenDto>> Login(LoginDto credentials)
@@ -98,18 +124,24 @@ namespace StoreManagement.Application.Services
             var claimsList = await _userManager.GetClaimsAsync(user);
             var roleClaim = claimsList.FirstOrDefault(c => c.Type == ClaimTypes.Role);
 
-            if (roleClaim?.Value != "Cashier")
+            if (roleClaim == null)
             {
                 response.Success = false;
-                response.Message = "You are not a Cashier";
+                response.Message = "User role not found";
+                return response;
+            }
+
+            if (roleClaim.Value != "Cashier" && roleClaim.Value != "Admin")
+            {
+                response.Success = false;
+                response.Message = "Unauthorized role";
                 return response;
             }
 
             string? secretKey = _configuration.GetValue<string>("TokenSettings:SecretKey");
+
             if (string.IsNullOrEmpty(secretKey))
-            {
                 throw new ArgumentNullException(nameof(secretKey), "Secret key cannot be null or empty");
-            }
 
             var algorithm = SecurityAlgorithms.HmacSha256Signature;
             var keyInBytes = Encoding.ASCII.GetBytes(secretKey);
@@ -120,6 +152,7 @@ namespace StoreManagement.Application.Services
                 claims: claimsList,
                 signingCredentials: signingCredentials,
                 expires: DateTime.Now.AddHours(9));
+
             var tokenHandler = new JwtSecurityTokenHandler();
 
             response.Data = new TokenDto
@@ -130,7 +163,6 @@ namespace StoreManagement.Application.Services
 
             return response;
         }
-
 
     }
 }

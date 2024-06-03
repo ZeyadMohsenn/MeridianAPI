@@ -128,7 +128,7 @@ namespace StoreManagement.Application.Services
                 if (remained == 0)
                     orderStatus = OrderStatus.Finished;
 
-                var order = _mapper.Map<Order>(addOrderDto);
+                Order order = _mapper.Map<Order>(addOrderDto);
 
                 await _orderRepo.AddAsync(order);
                 await _unitOfWork.CommitAsync();

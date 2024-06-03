@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using StoreManagement.Application.Interfaces;
 using StoreManagement.Bases;
@@ -9,11 +10,13 @@ using StoreManagement.Domain.Entities;
 
 namespace StoreManagement.Application.Services;
 
-public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBase(), ICategoryService
+public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper, IImageService imageService) : ServiceBase(), ICategoryService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
     private readonly IBaseRepository<Category> _categoryRepo = unitOfWork.GetRepository<Category>();
+    private readonly IImageService _imageService = imageService;
+
 
     public async Task<ServiceResponse<bool>> AddCategory(AddCategoryDto addCategoryDto)
     {
@@ -62,6 +65,9 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
 
             GetCategoryDto categoryDto = _mapper.Map<GetCategoryDto>(category);
 
+            if (category.StoredFileName is not null)
+                categoryDto.ImageUrl = _imageService.GetCategoryImageUrl(category.StoredFileName);
+
             return new ServiceResponse<GetCategoryDto>()
             {
                 Data = categoryDto,
@@ -90,15 +96,26 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
 
             var count = await query.CountAsync();
 
-            var categories = await query.Select(category => _mapper.Map<GetAllCategoriesDto>(category))
-                                        .Skip((categoriesFitler.PageNumber - 1) * categoriesFitler.PageSize)
-                                        .Take(categoriesFitler.PageSize)
-                                        .ToListAsync();
+            var categories = await query
+             .Skip((categoriesFitler.PageNumber - 1) * categoriesFitler.PageSize)
+             .Take(categoriesFitler.PageSize)
+             .ToListAsync();
+
+            var categoriesDto = new List<GetAllCategoriesDto>();
+            foreach (var category in categories)
+            {
+                var categoryDto = _mapper.Map<GetAllCategoriesDto>(category);
+                
+                if(category.StoredFileName != null)
+                     categoryDto.ImageUrl = _imageService.GetCategoryImageUrl(category.StoredFileName); 
+                
+                categoriesDto.Add(categoryDto);
+            }
 
             var paginationResponse = new PaginationResponse<GetAllCategoriesDto>
             {
                 Length = count,
-                Collection = categories
+                Collection = categoriesDto
             };
 
             return new ServiceResponse<PaginationResponse<GetAllCategoriesDto>>
@@ -113,7 +130,6 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
             return new ServiceResponse<PaginationResponse<GetAllCategoriesDto>> { Data = null, Success = false, Message = "An error occurred while retrieving categories: " + ex.Message };
         }
     }
-
     public async Task<ServiceResponse<bool>> UpdateCategory(UpdateCategoryDto categoryDto, Guid id)
     {
 
@@ -128,8 +144,8 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
 
             Category? dbCategory = _categoryRepo.FindByID(id);
 
-            if(dbCategory is null)
-                return new ServiceResponse<bool>() { Success = false, Message = "No Client with this Id"};
+            if (dbCategory is null)
+                return new ServiceResponse<bool>() { Success = false, Message = "No Client with this Id" };
 
             var temp = await _categoryRepo.FindAsync(c => c.Name == categoryDto.Name && c.Id != dbCategory.Id);
 
@@ -205,6 +221,37 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBa
                 Success = false,
                 Message = "An error occurred while retrieving categories "
             };
+        }
+    }
+
+    public async Task<ServiceResponse<string>> UploadCategoryImage(Guid categoryId, IFormFile image)
+    {
+
+        try
+        {
+            if (categoryId == Guid.Empty)
+                return new ServiceResponse<string>() { Success = false, Message = "Please Enter the id" };
+
+            if (image == null)
+                return new ServiceResponse<string>() { Success = false, Message = " Please attach an image" };
+
+
+            Category? category = _categoryRepo.FindByID(categoryId);
+
+            if (category is null)
+                return new ServiceResponse<string>() { Success = false, Message = "Category not found" };
+
+            category.StoredFileName = await _imageService.UploadImage(nameof(Category), image);
+
+            _categoryRepo.Update(category);
+            await _unitOfWork.CommitAsync();
+            return new ServiceResponse<string> { Success = true, Message = "Image Uploaded Successfuly" , Data = category.StoredFileName };
+
+        }
+        catch
+        {
+            return new ServiceResponse<string> { Success = false, Message = "An error occurred while uploading the image" };
+
         }
     }
 

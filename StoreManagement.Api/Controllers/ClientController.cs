@@ -4,13 +4,13 @@ using StoreManagement.Application.Interfaces;
 using StoreManagement.Bases;
 using StoreManagement.Bases.Domain.Model;
 using StoreManagement.Domain.Dtos.Client;
+using StoreManagement.Domain.Login_Token;
 
 namespace StoreManagement.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [AllowAnonymous]
-
+    [Authorize]
     public class ClientController : ApiControllersBase
     {
         private readonly IClientService _clientService;
@@ -18,13 +18,14 @@ namespace StoreManagement.Api.Controllers
         {
             _clientService = clientService;
         }
-        [HttpPost, AllowAnonymous]
+        [HttpPost]
+
         public async Task<IActionResult> AddClient([FromBody] AddClientDto addClientDto)
         {
             var client = await _clientService.AddClient(addClientDto);
             return Ok(client);
         }
-        [HttpGet, AllowAnonymous]
+        [HttpGet]
 
         public async Task<IActionResult> GetClient(Guid id)
         {
@@ -32,7 +33,8 @@ namespace StoreManagement.Api.Controllers
             return Ok(client);
         }
 
-        [HttpGet("GetAll"), AllowAnonymous]
+        [HttpGet("GetAll")]
+        //[Authorize(nameof(UserRole.Cashier))]
 
         public async Task<IActionResult> GetClients([FromQuery] GetAllClientsFilter clientsFilter)
         {
@@ -40,14 +42,14 @@ namespace StoreManagement.Api.Controllers
             return Ok(clients);
         }
 
-        [HttpPut, AllowAnonymous]
+        [HttpPut]
         public async Task<IActionResult> UpdateClient(UpdateClientDto clientDto, Guid id)
         {
             var updatedClient = await _clientService.UpdateClient(clientDto, id);   
             return Ok(updatedClient);
         }
 
-        [HttpDelete, AllowAnonymous]
+        [HttpDelete]
         public async Task<IActionResult> DeleteClient(Guid id)
         {
             var result = await _clientService.DeleteClient(id);

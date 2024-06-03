@@ -12,8 +12,8 @@ using StoreManagement.Infrastructure;
 namespace StoreManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(StoreDbContext))]
-    [Migration("20240527095958_CashierTableAlter")]
-    partial class CashierTableAlter
+    [Migration("20240603112835_imgforCategoryandSub")]
+    partial class imgforCategoryandSub
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -273,37 +273,6 @@ namespace StoreManagement.Infrastructure.Migrations
                     b.ToTable("AspNetUserRoles", (string)null);
                 });
 
-            modelBuilder.Entity("StoreManagement.Domain.Entities.Cashier", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("Is_Deleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Cashiers");
-                });
-
             modelBuilder.Entity("StoreManagement.Domain.Entities.Category", b =>
                 {
                     b.Property<Guid>("Id")
@@ -321,7 +290,7 @@ namespace StoreManagement.Infrastructure.Migrations
                         .HasMaxLength(25)
                         .HasColumnType("nvarchar(25)");
 
-                    b.Property<string>("Photo")
+                    b.Property<string>("StoredFileName")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -519,9 +488,8 @@ namespace StoreManagement.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Photo")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<string>("StoredFileName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -583,17 +551,6 @@ namespace StoreManagement.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Role");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("StoreManagement.Domain.Entities.Cashier", b =>
-                {
-                    b.HasOne("StoreManagement.Domain.Entities.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.Navigation("User");
                 });

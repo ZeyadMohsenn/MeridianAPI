@@ -1,4 +1,5 @@
-﻿using StoreManagement.Bases;
+﻿using Microsoft.AspNetCore.Http;
+using StoreManagement.Bases;
 using StoreManagement.Bases.Domain.Model;
 using StoreManagement.Domain;
 using StoreManagement.Domain.Dtos;
@@ -13,6 +14,8 @@ namespace StoreManagement.Application.Interfaces
         Task<ServiceResponse<bool>> UpdateSubCategory(UpdateSubCategoryDto subCategoryDto, Guid id);
         Task<ServiceResponse<bool>> DeleteSubCategoryAsync(Guid id);
         Task<ServiceResponse<List<DropDownSubCategoriesDto>>> GetSubCategoriesDropDownList();
+        Task<ServiceResponse<string>> UploadSubCategoryImage(Guid subCategoryId, IFormFile image);
+
 
     }
 }

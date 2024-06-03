@@ -11,8 +11,7 @@ namespace StoreManagement.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [AllowAnonymous]
-
+    [Authorize]
     public class OrderController : ApiControllersBase
     {
         private readonly IOrderService _orderServices;
@@ -20,20 +19,20 @@ namespace StoreManagement.Api.Controllers
         {
             _orderServices = orderService;
         }
-        [HttpPost, AllowAnonymous]
+        [HttpPost]
         public async Task<IActionResult> AddOrder([FromBody] AddOrderDto addOrderDto)
         {
             var Order = await _orderServices.AddOrder(addOrderDto);
             return Ok(Order);
         }
-        [HttpGet, AllowAnonymous]
+        [HttpGet]
         public async Task<IActionResult> GetOrder(Guid id)
         {
             ServiceResponse<GetOrderDto> order = await _orderServices.GetOrder(id);
             return Ok(order);
         }
 
-        [HttpGet("GetAll"), AllowAnonymous]
+        [HttpGet("GetAll")]
         public async Task<IActionResult> GetOrders([FromQuery] GetAllOrdersFilter ordersFitler)
         {
             ServiceResponse<PaginationResponse<GetOrdersDto>> response = await _orderServices.GetOrdersAsync(ordersFitler);
@@ -44,7 +43,7 @@ namespace StoreManagement.Api.Controllers
                 return BadRequest(response);
         }
 
-        [HttpPut("Pay"), AllowAnonymous]
+        [HttpPut("Pay")]
         public async Task<IActionResult> Pay(Guid id, PayDto pay)
         {
             ServiceResponse<bool> order = await _orderServices.Pay(id, pay);
@@ -53,7 +52,7 @@ namespace StoreManagement.Api.Controllers
 
 
 
-        [HttpPut("UpdateOrderStatus"), AllowAnonymous]
+        [HttpPut("UpdateOrderStatus")]
         public async Task<IActionResult> UpdateOrderStatus(Guid id, OrderStatus status)
         {
             ServiceResponse<bool> order = await _orderServices.UpdateOrderStatus(id, status);

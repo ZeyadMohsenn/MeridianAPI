@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using StoreManagement.Application.Interfaces;
 using StoreManagement.Bases;
@@ -10,12 +11,15 @@ using System.Linq.Expressions;
 
 namespace StoreManagement.Application.Services;
 
-public class SubCategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBase(), ISubCategoryService
+public class SubCategoryService(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor httpContextAccessor, IImageService imageService) : ServiceBase(), ISubCategoryService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
     private readonly IBaseRepository<SubCategory> _subCategoryRepo = unitOfWork.GetRepository<SubCategory>();
     private readonly IBaseRepository<Category> _categoryRepo = unitOfWork.GetRepository<Category>();
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+    private readonly IImageService _imageService = imageService;
+
 
 
     public async Task<ServiceResponse<bool>> AddSubCategory(AddSubCategoryDto addSubCategoryDto)
@@ -80,6 +84,10 @@ public class SubCategoryService(IUnitOfWork unitOfWork, IMapper mapper) : Servic
 
             var getSubCategoryDto = _mapper.Map<GetSubCategoryDto>(subCategory);
 
+            if(subCategory.StoredFileName != null)
+                 getSubCategoryDto.ImageUrl =  _imageService.GetCategoryImageUrl(subCategory.StoredFileName);
+
+
             return new ServiceResponse<GetSubCategoryDto>() { Data = getSubCategoryDto, Success = true, Message = "Retrieved Successfully" };
         }
 
@@ -109,15 +117,25 @@ public class SubCategoryService(IUnitOfWork unitOfWork, IMapper mapper) : Servic
 
             var count = await query.CountAsync();
 
-            var subCategories = await query.Select(sub => _mapper.Map<GetAllSubCategoriesDto>(sub))
+            var subCategories = await query/*.Select(sub => _mapper.Map<GetAllSubCategoriesDto>(sub))*/
                                            .Skip((subCategoriesFilter.PageNumber - 1) * subCategoriesFilter.PageSize)
                                            .Take(subCategoriesFilter.PageSize)
                                            .ToListAsync();
 
+            var subCategoriesDto = new List<GetAllSubCategoriesDto>();
+            foreach (var subCategory in subCategories)
+            {
+                var subCategoryDto = _mapper.Map<GetAllSubCategoriesDto>(subCategory);
+
+                if(subCategory.StoredFileName != null)
+                     subCategoryDto.ImageUrl = _imageService.GetCategoryImageUrl(subCategory.StoredFileName);
+                subCategoriesDto.Add(subCategoryDto);
+            }
+
             var paginationResponse = new PaginationResponse<GetAllSubCategoriesDto>
             {
                 Length = count,
-                Collection = subCategories,
+                Collection = subCategoriesDto,
             };
 
             return new ServiceResponse<PaginationResponse<GetAllSubCategoriesDto>>
@@ -238,6 +256,36 @@ public class SubCategoryService(IUnitOfWork unitOfWork, IMapper mapper) : Servic
                 Success = false,
                 Message = "An error occurred while retrieving categories "
             };
+        }
+    }
+    public async Task<ServiceResponse<string>> UploadSubCategoryImage(Guid subCategoryId, IFormFile image)
+    {
+
+        try
+        {
+            if (subCategoryId == Guid.Empty)
+                return new ServiceResponse<string>() { Success = false, Message = "Please Enter the id" };
+
+            if (image == null)
+                return new ServiceResponse<string>() { Success = false, Message = " Please attach an image" };
+
+
+            SubCategory? subCategory = _subCategoryRepo.FindByID(subCategoryId);
+
+            if (subCategory is null)
+                return new ServiceResponse<string>() { Success = false, Message = "SubCategory not found" };
+
+           
+            subCategory.StoredFileName = await _imageService.UploadImage(nameof(SubCategory), image);
+
+            _subCategoryRepo.Update(subCategory);
+            await _unitOfWork.CommitAsync();
+            return new ServiceResponse<string> { Success = true, Message = "Image Uploaded Successfuly" , Data = subCategory.StoredFileName };
+
+        }
+        catch
+        {
+            return new ServiceResponse<string> { Success = false, Message = "An error occurred while uploading the image" };
         }
     }
 }

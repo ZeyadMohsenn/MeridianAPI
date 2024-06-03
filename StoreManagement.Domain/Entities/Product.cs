@@ -8,8 +8,9 @@ namespace StoreManagement.Domain.Entities
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public string? Photo { get; set; }
+        //public string? StoredFileName { get; set; }
+        //public string? ContentType { get; set; }
         public decimal? Price { get; set; }
-        //public decimal Discount { get; set; }
         public int? StockQuantity { get; set; }
         public bool isActive { get; set; } = true;
         public Guid SubCategory_Id { get; set; }

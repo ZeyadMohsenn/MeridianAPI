@@ -3,10 +3,9 @@ using StoreManagement.Domain.Login_Token;
 
 namespace StoreManagement.Application.Interfaces
 {
-    public interface ICashierService
+    public interface IAuthService
     {
-        Task<ServiceResponse<bool>> Register(RegisterDto addCashierDto);
+        Task<ServiceResponse<bool>> CreateUser(RegisterDto registerDto);
         Task<ServiceResponse<TokenDto>> Login(LoginDto credentials);
-
     }
 }
