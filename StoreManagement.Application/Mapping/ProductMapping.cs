@@ -9,8 +9,9 @@ public class ProductMapping : MappingProfileBase
     public ProductMapping()
     {
         CreateMap<AddProductDto, Product>();
-        CreateMap<Product, GetProductDto>();
-        CreateMap<Product, GetProductsDto>();
-
+        CreateMap<Product, GetProductDto>()
+            .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images.Select(image => new GetImagesDto { ImageUrl = image.StoredFileName})));
+        CreateMap<Product, GetProductsDto>()
+            .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images.Select(image => new GetImagesDto { ImageUrl = image.StoredFileName})));
     }
 }

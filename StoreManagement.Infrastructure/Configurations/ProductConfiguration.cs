@@ -16,12 +16,10 @@ namespace StoreManagement.Infrastructure.Configurations
             builder.Property(s => s.Description)
                    .HasMaxLength(500);
 
-            builder.Property(s => s.Photo)
-                   .HasMaxLength(100);
+
             builder.Property(s => s.StockQuantity);
             builder.Property(s => s.isActive);
             builder.Property(s => s.Price);
-            //builder.Property(s => s.Discount);
             builder.Property(s => s.SubCategory_Id)
             .IsRequired();
             builder.HasOne<SubCategory>(s => s.SubCategory)
@@ -31,6 +29,11 @@ namespace StoreManagement.Infrastructure.Configurations
             builder.HasMany(p => p.OrderProducts)
                 .WithOne(op => op.Product)
                 .HasForeignKey(op => op.ProductId);
+          
+            builder.HasMany(c => c.Images)
+           .WithOne(p => p.Product)
+           .HasForeignKey(p => p.ProductId)
+           .IsRequired();
         }
     }
 

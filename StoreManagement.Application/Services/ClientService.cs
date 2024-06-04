@@ -6,7 +6,6 @@ using StoreManagement.Bases.Domain.Model;
 using StoreManagement.Domain;
 using StoreManagement.Domain.Dtos.Client;
 using StoreManagement.Domain.Entities;
-using StoreManagement.Domain.Entities.StoreManagement.Domain.Entities;
 using System.Linq.Expressions;
 
 
@@ -153,7 +152,7 @@ namespace StoreManagement.Application.Services
                 foreach (var phone in existingPhones)
                 {
                     dbClient.Phones.Remove(phone);
-                    _phoneRepo.Remove(phone); 
+                    _phoneRepo.Remove(phone);
                 }
 
                 foreach (var phoneDto in clientDto.Phones)
@@ -176,7 +175,7 @@ namespace StoreManagement.Application.Services
         }
 
         public async Task<ServiceResponse<bool>> DeleteClient(Guid id)
-        {      
+        {
             try
             {
                 if (id == Guid.Empty)

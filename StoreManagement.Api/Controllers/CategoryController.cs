@@ -92,7 +92,7 @@ namespace StoreManagement.Api.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> UploadImage(Guid categoryId, IFormFile image)
         {
-            var result =await  _categoryServices.UploadCategoryImage(categoryId, image);
+            var result = await  _categoryServices.UploadCategoryImage(categoryId, image);
             return Ok(result);  
         }
 

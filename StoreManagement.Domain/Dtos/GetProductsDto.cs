@@ -11,4 +11,6 @@ public class GetProductsDto
     public bool IsActive { get; set; }
     public Guid SubCategoryId { get; set; }
     public string SubCategoryName { get; set; }
+    public List<GetImagesDto> Images { get; set; } = new List<GetImagesDto>();
+
 }

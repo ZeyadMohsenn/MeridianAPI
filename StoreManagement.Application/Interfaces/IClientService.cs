@@ -13,7 +13,5 @@ namespace StoreManagement.Application.Interfaces
         Task<ServiceResponse<bool>> UpdateClient(UpdateClientDto clientDto, Guid id);
         Task<ServiceResponse<bool>> DeleteClient(Guid id);
 
-
-
     }
 }

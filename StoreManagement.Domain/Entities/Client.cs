@@ -1,5 +1,4 @@
 ﻿using StoreManagement.Bases;
-using StoreManagement.Domain.Entities.StoreManagement.Domain.Entities;
 
 namespace StoreManagement.Domain.Entities
 {

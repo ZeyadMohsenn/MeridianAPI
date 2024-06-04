@@ -1,10 +1,16 @@
 using Microsoft.OpenApi.Models;
 using StoreManagement.Api;
 using StoreManagement.API.Classes;
+using StoreManagement.Domain.Const;
 
 var builder = WebApplication.CreateBuilder(args);
 Startup startup = new(builder.Configuration);
 startup.ConfigureServices(builder.Services);
+
+builder.Services.Configure<AttachmentOptions>(builder.Configuration.GetSection("Attachments"));
+
+//var attachmentOptions = builder.Configuration.GetSection("Attachments").Get<AttachmentOptions>();
+//builder.Services.AddSingleton(attachmentOptions);
 
 builder.Services.AddControllers();
 // Add services to the container.

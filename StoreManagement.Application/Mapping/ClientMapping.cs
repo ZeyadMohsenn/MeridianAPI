@@ -1,7 +1,6 @@
 ﻿using StoreManagement.Bases;
 using StoreManagement.Domain.Dtos.Client;
 using StoreManagement.Domain.Entities;
-using StoreManagement.Domain.Entities.StoreManagement.Domain.Entities;
 
 namespace StoreManagement.Application.Mapping
 {

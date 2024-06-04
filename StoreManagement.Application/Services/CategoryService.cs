@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using StoreManagement.Application.Interfaces;
 using StoreManagement.Bases;
 using StoreManagement.Bases.Domain.Model;
 using StoreManagement.Domain;
+using StoreManagement.Domain.Const;
 using StoreManagement.Domain.Dtos;
 using StoreManagement.Domain.Entities;
 
@@ -66,7 +68,7 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper, IImageServi
             GetCategoryDto categoryDto = _mapper.Map<GetCategoryDto>(category);
 
             if (category.StoredFileName is not null)
-                categoryDto.ImageUrl = _imageService.GetCategoryImageUrl(category.StoredFileName);
+                categoryDto.ImageUrl = _imageService.GetImageUrl(category.StoredFileName);
 
             return new ServiceResponse<GetCategoryDto>()
             {
@@ -107,7 +109,7 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper, IImageServi
                 var categoryDto = _mapper.Map<GetAllCategoriesDto>(category);
                 
                 if(category.StoredFileName != null)
-                     categoryDto.ImageUrl = _imageService.GetCategoryImageUrl(category.StoredFileName); 
+                     categoryDto.ImageUrl = _imageService.GetImageUrl(category.StoredFileName); 
                 
                 categoriesDto.Add(categoryDto);
             }
@@ -226,7 +228,6 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper, IImageServi
 
     public async Task<ServiceResponse<string>> UploadCategoryImage(Guid categoryId, IFormFile image)
     {
-
         try
         {
             if (categoryId == Guid.Empty)
@@ -241,11 +242,18 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper, IImageServi
             if (category is null)
                 return new ServiceResponse<string>() { Success = false, Message = "Category not found" };
 
-            category.StoredFileName = await _imageService.UploadImage(nameof(Category), image);
+            try
+            {
+                category.StoredFileName = await _imageService.UploadImage(nameof(Category), image);
 
-            _categoryRepo.Update(category);
-            await _unitOfWork.CommitAsync();
-            return new ServiceResponse<string> { Success = true, Message = "Image Uploaded Successfuly" , Data = category.StoredFileName };
+                _categoryRepo.Update(category);
+                await _unitOfWork.CommitAsync();
+                return new ServiceResponse<string> { Success = true, Message = "Image Uploaded Successfully", Data = category.StoredFileName };
+            }
+            catch (Exception ex)
+            {
+                return new ServiceResponse<string> { Success = false, Message = $"An error occurred while uploading the image: {ex.Message}" };
+            }
 
         }
         catch

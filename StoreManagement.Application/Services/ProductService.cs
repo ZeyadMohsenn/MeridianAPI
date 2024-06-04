@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using StoreManagement.Application.Interfaces;
 using StoreManagement.Bases;
@@ -10,12 +11,16 @@ using System.Linq.Expressions;
 
 namespace StoreManagement.Application.Services
 {
-    public class ProductService(IUnitOfWork unitOfWork, IMapper mapper) : ServiceBase(), IProductService
+    public class ProductService(IUnitOfWork unitOfWork, IMapper mapper, IImageService imageService) : ServiceBase(), IProductService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IMapper _mapper = mapper;
         private readonly IBaseRepository<Product> _productRepo = unitOfWork.GetRepository<Product>();
         private readonly IBaseRepository<SubCategory> _subCategoryRepo = unitOfWork.GetRepository<SubCategory>();
+        private readonly IBaseRepository<Domain.Entities.Image> _imageRepo = unitOfWork.GetRepository<Domain.Entities.Image>();
+        private readonly IImageService _imageService = imageService;
+
+
 
 
         public async Task<ServiceResponse<bool>> AddProduct(AddProductDto addProductDto)
@@ -42,7 +47,7 @@ namespace StoreManagement.Application.Services
 
                 addProductDto.Description = addProductDto.Description?.Trim();
 
-                  
+
                 Product dbProduct = _mapper.Map<Product>(addProductDto);
 
                 await _productRepo.AddAsync(dbProduct);
@@ -69,12 +74,18 @@ namespace StoreManagement.Application.Services
             {
                 Expression<Func<Product, bool>> filterPredicate = p => p.Id == id;
 
-                Product product = await _productRepo.FindAsync(filterPredicate, Include: q => q.Include(p => p.SubCategory), asNoTracking: true);
+                Product product = await _productRepo.FindAsync(filterPredicate, Include: q => q.Include(p => p.SubCategory).Include(p => p.Images), asNoTracking: true);
 
                 if (product == null)
                     return new ServiceResponse<GetProductDto>() { Success = false, Message = "Product not found" };
 
                 var getProductDto = _mapper.Map<GetProductDto>(product);
+
+                foreach (var image in getProductDto.Images)
+                {
+                    if (image.ImageUrl != null)
+                        image.ImageUrl = _imageService.GetImageUrl(image.ImageUrl);
+                }
 
                 return new ServiceResponse<GetProductDto>() { Data = getProductDto, Success = true, Message = "Retrieved Successfully" };
             }
@@ -83,7 +94,6 @@ namespace StoreManagement.Application.Services
                 return new ServiceResponse<GetProductDto>() { Data = null, Success = false, Message = "An error occurred while getting the Product" };
             }
         }
-
 
         public async Task<ServiceResponse<PaginationResponse<GetProductsDto>>> GetProductsAsync(GetAllProductsFilter productFilter)
         {
@@ -102,18 +112,27 @@ namespace StoreManagement.Application.Services
 
                 var count = await query.CountAsync();
 
-                query = query.Include(p => p.SubCategory);
-
+                query = query.Include(p => p.SubCategory).Include(p => p.Images);
 
                 var products = await query.Skip((productFilter.PageNumber - 1) * productFilter.PageSize)
                                           .Take(productFilter.PageSize)
-                                          .Select(p => _mapper.Map<GetProductsDto>(p))
                                           .ToListAsync();
+
+                var mappedProducts = products.Select(p =>
+                {
+                    var getProductDto = _mapper.Map<GetProductsDto>(p);
+                    foreach (var image in getProductDto.Images)
+                    {
+                        if (image.ImageUrl != null)
+                            image.ImageUrl = _imageService.GetImageUrl(image.ImageUrl);
+                    }
+                    return getProductDto;
+                }).ToList();
 
                 var paginationResponse = new PaginationResponse<GetProductsDto>
                 {
                     Length = count,
-                    Collection = products
+                    Collection = mappedProducts
                 };
 
                 return new ServiceResponse<PaginationResponse<GetProductsDto>>
@@ -125,7 +144,7 @@ namespace StoreManagement.Application.Services
             }
             catch (Exception)
             {
-                return new ServiceResponse<PaginationResponse<GetProductsDto>> { Data = null, Success = false, Message = "An error occurred while retrieving Products: " };
+                return new ServiceResponse<PaginationResponse<GetProductsDto>> { Data = null, Success = false, Message = "An error occurred while retrieving Products" };
             }
         }
 
@@ -136,7 +155,7 @@ namespace StoreManagement.Application.Services
             {
                 if (id == Guid.Empty)
                     return new ServiceResponse<bool>() { Success = false, Message = "Please Enter the id" };
-           
+
                 productDto.Name = productDto.Name.Trim();
 
                 if (productDto.Description == null)
@@ -234,7 +253,43 @@ namespace StoreManagement.Application.Services
                 return new ServiceResponse<bool> { Success = false, Message = "An error occurred " };
             }
         }
+
+        public async Task<ServiceResponse<bool>> UploadImages(Guid productId, List<IFormFile> images)
+        {
+            try
+            {
+                if (productId == Guid.Empty)
+                    return new ServiceResponse<bool>() { Success = false, Message = "Please Enter the id" };
+
+                if (images.Count == 0)
+                    return new ServiceResponse<bool>() { Success = false, Message = " Please attach an image" };
+
+                Expression<Func<Product, bool>> filterPredicate = p => p.Id == productId;
+
+                Product? dbProduct = await _productRepo.FindAsync(filterPredicate, Include: q => q.Include(c => c.Images));
+
+                if (dbProduct == null)
+                    return new ServiceResponse<bool>() { Success = false, Message = " Product is not found" };
+
+                foreach (var image in images)
+                {
+                    string storedFileName = await _imageService.UploadImage(nameof(Product), image);
+                    dbProduct.Images.Add(new Domain.Entities.Image { StoredFileName = storedFileName });
+                }
+
+                _productRepo.Update(dbProduct);
+                await _unitOfWork.CommitAsync();
+
+                return new ServiceResponse<bool>() { Success = true, Message = "Images uploaded successfully" };
+            }
+            catch (Exception ex)
+            {
+                return new ServiceResponse<bool>() { Success = false, Message = $"An error occurred: {ex.Message}" };
+            }
+
+        }
     }
 }
+
 
 

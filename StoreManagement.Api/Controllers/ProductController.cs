@@ -10,7 +10,7 @@ namespace StoreManagement.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [AllowAnonymous]
     public class ProductController : ApiControllersBase
     {
         private readonly IProductService _productServices;
@@ -78,6 +78,13 @@ namespace StoreManagement.Api.Controllers
                 return Ok(product);
 
             return BadRequest(product);
+        }
+
+        [HttpPost("UploadImages")]
+        public async Task<IActionResult> UploadImages(Guid productId,List<IFormFile> images)
+        {
+            var result = await _productServices.UploadImages(productId, images);
+            return Ok(result);  
         }
     }
 }

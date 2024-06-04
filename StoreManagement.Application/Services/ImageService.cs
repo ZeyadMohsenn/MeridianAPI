@@ -1,20 +1,30 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using StoreManagement.Application.Interfaces;
-using StoreManagement.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using StoreManagement.Domain.Const;
 
 namespace StoreManagement.Application.Services;
 
-public class ImageService(IHttpContextAccessor httpContextAccessor) : IImageService
+public class ImageService(IHttpContextAccessor httpContextAccessor, IOptionsSnapshot<AttachmentOptions> attachmentOptions) : IImageService
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+    private readonly IOptionsSnapshot<AttachmentOptions> _attachmentOptions = attachmentOptions;
+
     public async Task<string> UploadImage(string fileName, IFormFile image)
     {
+
+        var allowedExtensions = _attachmentOptions.Value.AllowedExtension.Split(";");
         var fileExtension = Path.GetExtension(image.FileName);
+        if (!allowedExtensions.Contains(fileExtension))
+        {
+            throw new ArgumentException($"Invalid file extension. Only {string.Join(", ", allowedExtensions)} files are allowed.");
+        }
+
+        var maxFileSizeInBytes = _attachmentOptions.Value.MaxSizeInMegaByte * 1024 * 1024; 
+        if (image.Length > maxFileSizeInBytes)
+        {
+            throw new ArgumentException($"File size exceeds the maximum allowed size of {_attachmentOptions.Value.MaxSizeInMegaByte} MB.");
+        }
         var fakeFileName = $"{Guid.NewGuid().ToString()}{fileExtension}";
         var storedFileName = "wwwroot/" + $"{fileName}/" + fakeFileName;
         var directory = Path.GetDirectoryName(storedFileName);
@@ -31,14 +41,10 @@ public class ImageService(IHttpContextAccessor httpContextAccessor) : IImageServ
             await image.CopyToAsync(fileStream);
         }
 
-        //category.Photo = image.FileName;
-        //category.ContentType = image.ContentType;
-        //category.StoredFileName =
-        //
         return storedFileName;
     }
 
-    public string GetCategoryImageUrl(string path)
+    public string GetImageUrl(string path)
     {
         var baseUrl = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}";
         baseUrl = baseUrl.TrimEnd('/');

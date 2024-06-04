@@ -85,7 +85,7 @@ public class SubCategoryService(IUnitOfWork unitOfWork, IMapper mapper, IHttpCon
             var getSubCategoryDto = _mapper.Map<GetSubCategoryDto>(subCategory);
 
             if(subCategory.StoredFileName != null)
-                 getSubCategoryDto.ImageUrl =  _imageService.GetCategoryImageUrl(subCategory.StoredFileName);
+                 getSubCategoryDto.ImageUrl =  _imageService.GetImageUrl(subCategory.StoredFileName);
 
 
             return new ServiceResponse<GetSubCategoryDto>() { Data = getSubCategoryDto, Success = true, Message = "Retrieved Successfully" };
@@ -128,7 +128,7 @@ public class SubCategoryService(IUnitOfWork unitOfWork, IMapper mapper, IHttpCon
                 var subCategoryDto = _mapper.Map<GetAllSubCategoriesDto>(subCategory);
 
                 if(subCategory.StoredFileName != null)
-                     subCategoryDto.ImageUrl = _imageService.GetCategoryImageUrl(subCategory.StoredFileName);
+                     subCategoryDto.ImageUrl = _imageService.GetImageUrl(subCategory.StoredFileName);
                 subCategoriesDto.Add(subCategoryDto);
             }
 
