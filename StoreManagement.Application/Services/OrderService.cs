@@ -91,7 +91,7 @@ namespace StoreManagement.Application.Services
                     totalOrderPrice += totalPriceForProductAfterDiscount;
 
                     productDb.StockQuantity -= orderProduct.Quantity;
-                    _productRepo.Update(productDb); 
+                    _productRepo.Update(productDb);
                 }
 
                 decimal orderLevelDiscount = 0;
@@ -129,6 +129,11 @@ namespace StoreManagement.Application.Services
                     orderStatus = OrderStatus.Finished;
 
                 Order order = _mapper.Map<Order>(addOrderDto);
+                order.TotalPrice = totalOrderPrice;
+                order.RemainedAmount = remained;
+                order.Status = orderStatus;
+                order.DateTime = DateTime.Now;
+                order.Discount = discountAmount;
 
                 await _orderRepo.AddAsync(order);
                 await _unitOfWork.CommitAsync();
@@ -142,15 +147,16 @@ namespace StoreManagement.Application.Services
             }
             catch (Exception ex)
             {
-
+                // Optionally, log the exception
                 return new ServiceResponse<bool>
                 {
                     Success = false,
-                    Message = "An error occurred while adding the order",
+                    Message = $"An error occurred while adding the order: {ex.Message}",
                     Data = false
                 };
             }
         }
+
 
         public async Task<ServiceResponse<GetOrderDto>> GetOrder(Guid id)
         {

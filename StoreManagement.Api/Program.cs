@@ -8,9 +8,9 @@ Startup startup = new(builder.Configuration);
 startup.ConfigureServices(builder.Services);
 
 builder.Services.Configure<AttachmentOptions>(builder.Configuration.GetSection("Attachments"));
+builder.Services.Configure<SecretKey>(builder.Configuration.GetSection("TokenSettings"));
 
-//var attachmentOptions = builder.Configuration.GetSection("Attachments").Get<AttachmentOptions>();
-//builder.Services.AddSingleton(attachmentOptions);
+
 
 builder.Services.AddControllers();
 // Add services to the container.

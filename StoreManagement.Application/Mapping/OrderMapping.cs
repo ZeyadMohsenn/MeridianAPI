@@ -8,7 +8,18 @@ public class OrderMapping : MappingProfileBase
 {
     public OrderMapping()
     {
-        CreateMap<AddOrderDto, Order>();
+        CreateMap<AddOrderDto, Order>()
+            .ForMember(dest => dest.DateTime, opt => opt.Ignore()) 
+            .ForMember(dest => dest.TotalPrice, opt => opt.Ignore()) 
+            .ForMember(dest => dest.RemainedAmount, opt => opt.Ignore()) 
+            .ForMember(dest => dest.Status, opt => opt.Ignore()) 
+            .ForMember(dest => dest.Client_Id, opt => opt.MapFrom(src => src.ClientId))
+            .ForMember(dest => dest.OrderProducts, opt => opt.MapFrom(src => src.OrderProducts));
+
+        CreateMap<OrderProductDto, OrderProduct>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore()) 
+            .ForMember(dest => dest.OrderId, opt => opt.Ignore()); 
+
 
         CreateMap<Order, GetOrderDto>()
             .ForMember(dest => dest.Client_Name, opt => opt.MapFrom(src => src.Client.Name))

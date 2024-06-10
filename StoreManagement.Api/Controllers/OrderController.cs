@@ -11,7 +11,7 @@ namespace StoreManagement.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [AllowAnonymous]
     public class OrderController : ApiControllersBase
     {
         private readonly IOrderService _orderServices;

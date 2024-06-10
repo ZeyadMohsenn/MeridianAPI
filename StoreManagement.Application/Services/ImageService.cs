@@ -5,9 +5,9 @@ using StoreManagement.Domain.Const;
 
 namespace StoreManagement.Application.Services;
 
-public class ImageService(IHttpContextAccessor httpContextAccessor, IOptionsSnapshot<AttachmentOptions> attachmentOptions) : IImageService
+public class ImageService(IOptionsSnapshot<AttachmentOptions> attachmentOptions) : IImageService
 {
-    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+
     private readonly IOptionsSnapshot<AttachmentOptions> _attachmentOptions = attachmentOptions;
 
     public async Task<string> UploadImage(string fileName, IFormFile image)
@@ -46,12 +46,6 @@ public class ImageService(IHttpContextAccessor httpContextAccessor, IOptionsSnap
 
     public string GetImageUrl(string path)
     {
-        var baseUrl = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}";
-        baseUrl = baseUrl.TrimEnd('/');
-
-        var imageUrl = $"{baseUrl}/{path}";
-        imageUrl = imageUrl.Replace("wwwroot/", string.Empty);
-
-        return imageUrl;
+         return path.Replace("wwwroot/", string.Empty);
     }
 }

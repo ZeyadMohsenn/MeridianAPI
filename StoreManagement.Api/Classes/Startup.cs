@@ -17,6 +17,7 @@ public static class StartupBuilder
         services.AddScoped<IClientService, ClientService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IImageService, ImageService>();
+        services.AddScoped<IReportService, ReportService>();
     }
 
     public static void ConfigureRepositoriesTypes(IServiceCollection services)

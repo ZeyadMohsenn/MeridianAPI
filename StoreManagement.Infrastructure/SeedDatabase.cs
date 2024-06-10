@@ -31,7 +31,8 @@ public class SeedDatabase
     {
         if (!await context.Users.AnyAsync())
         {
-            var user = new ApplicationUser()
+            // Seed Admin user
+            var adminUser = new ApplicationUser()
             {
                 Id = Guid.Parse(SuperAdminId),
 
@@ -49,8 +50,41 @@ public class SeedDatabase
                 Is_Deleted = false,
                 Creation_Time = DateTime.Now,
             };
-            var saved = await userManager.CreateAsync(user, "P@55w0rd");
+
+            var adminSaved = await userManager.CreateAsync(adminUser, "AdminP@55w0rd");
+
+            if (adminSaved.Succeeded)
+            {
+                await userManager.AddToRoleAsync(adminUser, "Admin");
+            }
+
+            // Seed Cashier user
+            var cashierUser = new ApplicationUser()
+            {
+                Full_Name = "Cashier",
+                UserName = "cashier",
+                NormalizedUserName = "CASHIER",
+                Email = "cashier@StoreManagement.com",
+                NormalizedEmail = "CASHIER@StoreManagement.COM",
+                EmailConfirmed = true,
+                LockoutEnabled = false,
+                TwoFactorEnabled = false,
+                AccessFailedCount = 0,
+                SecurityStamp = Guid.NewGuid().ToString(),
+                Is_Active = true,
+                Is_Deleted = false,
+                Creation_Time = DateTime.Now,
+            };
+
+            var cashierSaved = await userManager.CreateAsync(cashierUser, "CashierP@55w0rd");
+
+            if (cashierSaved.Succeeded)
+            {
+                await userManager.AddToRoleAsync(cashierUser, "Cashier");
+            }
+
         }
+
     }
     private static async Task SeedRoles(IServiceProvider serviceProvider)
     {
@@ -61,6 +95,8 @@ public class SeedDatabase
             await roleManager.CreateAsync(new ApplicationRole { Name = "Cashier" });
         }
     }
+
+
 
 }
 

@@ -1,9 +1,10 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using StoreManagement.Application.Interfaces;
 using StoreManagement.Bases;
+using StoreManagement.Domain.Const;
 using StoreManagement.Domain.Entities;
 using StoreManagement.Domain.Login_Token;
 using System.IdentityModel.Tokens.Jwt;
@@ -16,18 +17,17 @@ namespace StoreManagement.Application.Services
     {
 
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly IOptionsSnapshot<SecretKey> _secretOptions;
 
-
-
-        public AuthService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager, IConfiguration configuration)
+        public AuthService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager,IConfiguration configuration ,IOptionsSnapshot<SecretKey> secretOption)
         {
             _unitOfWork = unitOfWork;
-            _mapper = mapper;
             _userManager = userManager;
-            _configuration = configuration;     
+            _configuration = configuration;
+            _secretOptions = secretOption;
+
         }
 
         public async Task<ServiceResponse<bool>> CreateUser(RegisterDto registerDto)
@@ -63,29 +63,9 @@ namespace StoreManagement.Application.Services
                     return response;
                 }
 
-                var claimsList = new List<Claim>
-                 {
-                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                     new Claim(ClaimTypes.Role, registerDto.Role.ToString()),
-                 };
+                var role = registerDto.Role.ToString();
 
-                await _userManager.AddClaimsAsync(user, claimsList);
-
-                //if (registerDto.Role == UserRole.Cashier)
-                //{
-                //    var cashier = _mapper.Map<Cashier>(registerDto);
-                //    cashier.User = user;
-
-                //    await _cashierRepo.AddAsync(cashier);
-                //}
-
-                //if (registerDto.Role == UserRole.Admin)
-                //{
-                //    var admin = _mapper.Map<Admin>(registerDto);
-                //    admin.User = user;
-
-                //    await _adminRepo.AddAsync(admin);
-                //}
+                await _userManager.AddToRoleAsync(user, role);
 
                 await _unitOfWork.CommitAsync();
 
@@ -138,7 +118,7 @@ namespace StoreManagement.Application.Services
                 return response;
             }
 
-            string? secretKey = _configuration.GetValue<string>("TokenSettings:SecretKey");
+            string? secretKey = /*_secretOptions.Value.Key;*/ _configuration.GetValue<string>("TokenSettings:SecretKey");
 
             if (string.IsNullOrEmpty(secretKey))
                 throw new ArgumentNullException(nameof(secretKey), "Secret key cannot be null or empty");
@@ -160,6 +140,7 @@ namespace StoreManagement.Application.Services
                 Token = tokenHandler.WriteToken(token)
             };
             response.Success = true;
+            response.Message = $"You're Logged in with {credentials.PhoneNumber}";
 
             return response;
         }

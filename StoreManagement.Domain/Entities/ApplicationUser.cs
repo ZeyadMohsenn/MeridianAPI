@@ -15,7 +15,6 @@ public class ApplicationUser : IdentityUser<Guid>
     public string Email_Token { get; set; } = "";
     public bool Token_Revoked { get; set; }
     public virtual ICollection<ApplicationUserRole> UserRoles { get; set; } = [];
-    //public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
 }
 

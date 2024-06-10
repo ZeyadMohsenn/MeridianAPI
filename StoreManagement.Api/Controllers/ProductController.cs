@@ -5,12 +5,12 @@ using StoreManagement.Bases;
 using StoreManagement.Bases.Domain.Model;
 using StoreManagement.Domain;
 using StoreManagement.Domain.Dtos;
+using StoreManagement.Domain.Login_Token;
 
 namespace StoreManagement.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [AllowAnonymous]
     public class ProductController : ApiControllersBase
     {
         private readonly IProductService _productServices;
@@ -46,7 +46,7 @@ namespace StoreManagement.Api.Controllers
             else
                 return BadRequest(new { message = deleteResponse.Message });
         }
-        [HttpGet("GetAll")]
+        [HttpGet("GetAll"), Authorize(Roles = nameof(UserRole.Cashier))]
 
         public async Task<IActionResult> GetProducts([FromQuery] GetAllProductsFilter prodctsFitler)
         {

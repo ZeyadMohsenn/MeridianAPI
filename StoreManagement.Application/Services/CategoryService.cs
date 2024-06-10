@@ -1,12 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using StoreManagement.Application.Interfaces;
 using StoreManagement.Bases;
 using StoreManagement.Bases.Domain.Model;
 using StoreManagement.Domain;
-using StoreManagement.Domain.Const;
 using StoreManagement.Domain.Dtos;
 using StoreManagement.Domain.Entities;
 
@@ -83,7 +81,6 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper, IImageServi
             return new ServiceResponse<GetCategoryDto>() { Data = null, Success = false, Message = "An error occurred while getting category" };
         }
     }
-
     public async Task<ServiceResponse<PaginationResponse<GetAllCategoriesDto>>> GetCategoriesAsync(GetAllCategoriesFilter categoriesFitler)
     {
         try
@@ -107,10 +104,10 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper, IImageServi
             foreach (var category in categories)
             {
                 var categoryDto = _mapper.Map<GetAllCategoriesDto>(category);
-                
-                if(category.StoredFileName != null)
-                     categoryDto.ImageUrl = _imageService.GetImageUrl(category.StoredFileName); 
-                
+
+                if (category.StoredFileName != null)
+                    categoryDto.ImageUrl = _imageService.GetImageUrl(category.StoredFileName);
+
                 categoriesDto.Add(categoryDto);
             }
 

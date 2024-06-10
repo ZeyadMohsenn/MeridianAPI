@@ -4,13 +4,12 @@ using StoreManagement.Application.Interfaces;
 using StoreManagement.Bases;
 using StoreManagement.Bases.Domain.Model;
 using StoreManagement.Domain.Dtos.Client;
-using StoreManagement.Domain.Login_Token;
 
 namespace StoreManagement.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [AllowAnonymous]
     public class ClientController : ApiControllersBase
     {
         private readonly IClientService _clientService;
@@ -45,7 +44,7 @@ namespace StoreManagement.Api.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateClient(UpdateClientDto clientDto, Guid id)
         {
-            var updatedClient = await _clientService.UpdateClient(clientDto, id);   
+            var updatedClient = await _clientService.UpdateClient(clientDto, id);
             return Ok(updatedClient);
         }
 

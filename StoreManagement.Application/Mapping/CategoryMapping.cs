@@ -16,8 +16,5 @@ public class CategoryMapping : MappingProfileBase
 
         CreateMap<Category, DropDownCategoriesDto>();
 
-
-
-
     }
 }
