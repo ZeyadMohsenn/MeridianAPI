@@ -22,17 +22,14 @@ public class ImageService(IOptionsSnapshot<AttachmentOptions> attachmentOptions)
 
         var maxFileSizeInBytes = _attachmentOptions.Value.MaxSizeInMegaByte * 1024 * 1024; 
         if (image.Length > maxFileSizeInBytes)
-        {
             throw new ArgumentException($"File size exceeds the maximum allowed size of {_attachmentOptions.Value.MaxSizeInMegaByte} MB.");
-        }
+       
         var fakeFileName = $"{Guid.NewGuid().ToString()}{fileExtension}";
         var storedFileName = "wwwroot/" + $"{fileName}/" + fakeFileName;
         var directory = Path.GetDirectoryName(storedFileName);
 
         if (!Directory.Exists(directory))
-        {
             Directory.CreateDirectory(directory);
-        }
 
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), storedFileName);
 
